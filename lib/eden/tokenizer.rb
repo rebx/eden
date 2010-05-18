@@ -26,6 +26,7 @@ module Eden
         when :identifier # keyword / name / etc
           @current_line.tokens << tokenize_identifier
         when :instancevar
+          @current_line.tokens << tokenize_instancevar
         when :classvar
         when :classvar
         when :lparen, :rparen, :lsquare, :rsquare,
@@ -104,11 +105,11 @@ module Eden
     end
 
     def peek_ahead_for( regex )
-      !!regex.match( @sf.source[@i+1] )
+      !!regex.match( @sf.source[@i+1..@i+1] )
     end
     
     def tokenize_identifier
-      until( /[A-Za-z_]/.match( cchar ).nil? )
+      until( /[A-Za-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
       end
       token = Token.new(:identifier, thunk)
@@ -122,6 +123,17 @@ module Eden
         @thunk_end += 1; @i += 1
       end
       token = Token.new(:whitespace, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_instancevar
+      @thunk_end += 1; @i += 1 # Pass the @ symbol
+      until( /[a-z0-9_]/.match( cchar ).nil? )
+        @thunk_end += 1; @i += 1
+      end
+      token = Token.new(:instancevar, thunk)
       reset_thunk!
       default_state_transitions!
       return token
