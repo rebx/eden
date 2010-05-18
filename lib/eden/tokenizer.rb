@@ -28,7 +28,7 @@ module Eden
         when :instancevar
           @current_line.tokens << tokenize_instancevar
         when :classvar
-        when :classvar
+          @current_line.tokens << tokenize_classvar
         when :lparen, :rparen, :lsquare, :rsquare,
           :lcurly, :rcurly
         when :comma
@@ -134,6 +134,17 @@ module Eden
         @thunk_end += 1; @i += 1
       end
       token = Token.new(:instancevar, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_classvar
+      @thunk_end += 2; @i += 2 # Pass the @@ symbol
+      until( /[a-z0-9_]/.match( cchar ).nil? )
+        @thunk_end += 1; @i += 1
+      end
+      token = Token.new(:classvar, thunk)
       reset_thunk!
       default_state_transitions!
       return token
