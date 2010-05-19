@@ -30,10 +30,11 @@ module Eden
         when :classvar
           @current_line.tokens << tokenize_classvar
         when :lparen, :rparen, :lsquare, :rsquare,
-          :lcurly, :rcurly
-        when :comma
+          :lcurly, :rcurly, :comma
+          @current_line.tokens << tokenize_single_character
         when :plus, :minus, :equals, :modulo, :multiply, :ampersand, :pipe,
-          :caret, :gt, :lt, :colon, :bang, :period
+          :caret, :gt, :lt, :bang, :period, :tilde, :at
+          @current_line.tokens << tokenize_single_character
         when :whitespace
         when :comment
         when :single_q_string, :double_q_string, :heredoc_string, :bquote_string
@@ -64,14 +65,19 @@ module Eden
       when '@'
         if peek_ahead_for( /@/ )
           @state = :classvar
-        else
+        elsif peek_ahead_for( /[A-Za-z_]/ )
           @state = :instancevar
+        else 
+          @state = :at
         end
       when '/'  then @state = :regex
       when '#'  then @state = :comment
       when ','  then @state = :comma
       when '.'  then @state = :period
       when '&'  then @state = :ampersand
+      when '!'  then @state = :bang
+      when '~'  then @state = :tilde
+      when '^'  then @state = :caret
       when '|'  then @state = :pipe
       when '>'  then @state = :gt
       when '<'  then @state = :lt
@@ -125,6 +131,15 @@ module Eden
       !!regex.match( @sf.source[@i+1..@i+1] )
     end
     
+    def tokenize_single_character
+      @thunk_end += 1
+      token = Token.new(@state, thunk)
+      @i += 1
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
     def tokenize_identifier
       until( /[A-Za-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
