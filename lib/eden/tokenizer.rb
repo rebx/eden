@@ -33,7 +33,8 @@ module Eden
           :lcurly, :rcurly, :comma
           @current_line.tokens << tokenize_single_character
         when :plus, :minus, :equals, :modulo, :multiply, :ampersand, :pipe,
-          :caret, :gt, :lt, :bang, :period, :tilde, :at
+          :caret, :gt, :lt, :bang, :period, :tilde, :at, :question_mark,
+          :semicolon, :equals, :colon
           @current_line.tokens << tokenize_single_character
         when :whitespace
         when :comment
@@ -81,6 +82,10 @@ module Eden
       when '|'  then @state = :pipe
       when '>'  then @state = :gt
       when '<'  then @state = :lt
+      when '?'  then @state = :question_mark
+      when ':'  then @state = :colon
+      when ';'  then @state = :semicolon
+      when '='  then @state = :equals
       when '%'  then @state = :modulo
       when '*'  then @state = :multiply
       when '('  then @state = :lparen
