@@ -130,7 +130,14 @@ module Eden
     def peek_ahead_for( regex )
       !!regex.match( @sf.source[@i+1..@i+1] )
     end
-    
+
+    def capture_token( type )
+      token = Token.new( type, thunk )
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
     def tokenize_single_character
       @thunk_end += 1
       token = Token.new(@state, thunk)
@@ -144,20 +151,14 @@ module Eden
       until( /[A-Za-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
       end
-      token = Token.new(:identifier, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :identifier )
     end
 
     def tokenize_whitespace
       until( cchar != ' ' && cchar != '\t' )
         @thunk_end += 1; @i += 1
       end
-      token = Token.new(:whitespace, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :whitespace )
     end
 
     def tokenize_instancevar
@@ -165,10 +166,7 @@ module Eden
       until( /[a-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
       end
-      token = Token.new(:instancevar, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :instancevar )
     end
 
     def tokenize_classvar
@@ -176,10 +174,7 @@ module Eden
       until( /[a-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
       end
-      token = Token.new(:classvar, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :classvar )
     end
 
     def tokenize_integer_literal
@@ -194,20 +189,14 @@ module Eden
       until( pattern.match( cchar ).nil? )
         @thunk_end +=1; @i += 1
       end
-      token = Token.new(@state, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( @state )
     end
 
     def tokenize_decimal_literal
       # Handle a lone zero
       if cchar == '0' && !peek_ahead_for(/[dD]/)
         @thunk_end+=1; @i+=1
-        token = Token.new( :dec_literal, thunk )
-        reset_thunk!
-        default_state_transitions!
-        return token
+        return capture_token( :dec_literal )
       end
 
       # Handle 0d1234 digits
@@ -226,10 +215,7 @@ module Eden
         else
         end
       end
-      token = Token.new(:dec_literal, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :dec_literal )
     end
 
     def tokenize_exponent_literal
@@ -241,10 +227,7 @@ module Eden
       until( /[0-9]/.match( cchar ).nil? )
         @thunk_end +=1; @i += 1
       end
-      token = Token.new(:exp_literal, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :exp_literal )
     end
 
     def tokenize_float_literal
@@ -256,10 +239,7 @@ module Eden
         end
         @thunk_end += 1; @i += 1
       end
-      token = Token.new(:float_literal, thunk)
-      reset_thunk!
-      default_state_transitions!
-      return token
+      capture_token( :float_literal )
     end
   end
 end
