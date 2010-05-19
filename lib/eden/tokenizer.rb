@@ -116,7 +116,7 @@ module Eden
         if peek_ahead_for( /[0-9]/ )
           @state = :number
         else
-          @state = @source[@i] == '+' ? :plus : :minus
+          @state = ( cchar == '+' ? :plus : :minus )
         end
       end
     end
@@ -133,7 +133,7 @@ module Eden
     end
 
     def peek_ahead_for( regex )
-      !!regex.match( @sf.source[@i+1..@i+1] )
+      @sf.source[@i+1..@i+1] && !!regex.match( @sf.source[@i+1..@i+1] )
     end
 
     def capture_token( type )

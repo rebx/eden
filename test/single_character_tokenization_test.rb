@@ -6,10 +6,10 @@ class NumberTokenizationTest < Test::Unit::TestCase
   end
 
   def test_single_character_tokenisation
-    @sf.stubs(:source).returns("<>!~@%^&*()[]{}|.:;=?")
+    @sf.stubs(:source).returns("<>!~@%^&*()[]{}|.:;=?+-")
     @sf.tokenize!
     line = @sf.lines[0]
-    assert_equal 21, line.tokens.size
+    assert_equal 23, line.tokens.size
     assert_equal "<", line.tokens[0].content
     assert_equal :lt, line.tokens[0].type
     assert_equal ">", line.tokens[1].content
@@ -52,6 +52,10 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal :equals, line.tokens[19].type
     assert_equal "?", line.tokens[20].content
     assert_equal :question_mark, line.tokens[20].type    
+    assert_equal "+", line.tokens[21].content
+    assert_equal :plus, line.tokens[21].type    
+    assert_equal "-", line.tokens[22].content
+    assert_equal :minus, line.tokens[22].type    
   end
 
 end
