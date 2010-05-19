@@ -38,7 +38,10 @@ module Eden
         when :comment
         when :single_q_string, :double_q_string, :heredoc_string, :bquote_string
         when :symbol
-        when :number
+        when :dec_literal
+          @current_line.tokens << tokenize_decimal_literal
+        when :bin_literal, :oct_literal, :hex_literal
+          @current_line.tokens << tokenize_integer_literal
         when :regex
         end
       end
@@ -82,8 +85,22 @@ module Eden
       when ']'  then @state = :rsquare
       when 'a'..'z', 'A'..'Z', '_'
         @state = :identifier
-      when '0'..'9'
-        @state = :number
+      when '0'
+        if peek_ahead_for(/[xX]/)
+          @state = :hex_literal 
+        elsif peek_ahead_for(/[bB]/)
+          @state = :bin_literal 
+        elsif peek_ahead_for(/[_oO0-7]/)
+          @state = :oct_literal
+        elsif peek_ahead_for(/[89]/)
+          puts "Illegal Octal Digit"
+        elsif peek_ahead_for(/[dD]/)
+          @state = :dec_literal
+        else
+          @state = :dec_literal
+        end
+      when '1'..'9'
+        @state = :dec_literal
       when '+', '-'
         if peek_ahead_for( /[0-9]/ )
           @state = :number
@@ -145,6 +162,86 @@ module Eden
         @thunk_end += 1; @i += 1
       end
       token = Token.new(:classvar, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_integer_literal
+      if peek_ahead_for(/[_oObBxX]/)
+        @thunk_end += 2; @i += 2 # Pass 0x / 0b / 0O
+      else
+        @thunk_end += 1; @i += 1 # Pass 0 for Octal digits
+      end
+      pattern = {:bin_literal => /[01]/,
+                 :oct_literal => /[0-7]/,
+                 :hex_literal => /[0-9a-fA-F]/}[@state]
+      until( pattern.match( cchar ).nil? )
+        @thunk_end +=1; @i += 1
+      end
+      token = Token.new(@state, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_decimal_literal
+      # Handle a lone zero
+      if cchar == '0' && !peek_ahead_for(/[dD]/)
+        @thunk_end+=1; @i+=1
+        token = Token.new( :dec_literal, thunk )
+        reset_thunk!
+        default_state_transitions!
+        return token
+      end
+
+      # Handle 0d1234 digits
+      if cchar == '0' && peek_ahead_for(/[dD]/)
+        @thunk_end += 2; @i += 2
+      end
+
+      until( /[0-9.eE]/.match( cchar ).nil? )
+        case cchar
+        when '.'
+          return tokenize_float_literal
+        when 'e', 'E'
+          return tokenize_exponent_literal
+        when '0'..'9'
+          @thunk_end += 1; @i += 1
+        else
+        end
+      end
+      token = Token.new(:dec_literal, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_exponent_literal
+      @thunk_end +=1; @i += 1 # Pass the e/E
+      if cchar == '+' or cchar == '-'
+        @thunk_end += 1; @i += 1
+      end
+
+      until( /[0-9]/.match( cchar ).nil? )
+        @thunk_end +=1; @i += 1
+      end
+      token = Token.new(:exp_literal, thunk)
+      reset_thunk!
+      default_state_transitions!
+      return token
+    end
+
+    def tokenize_float_literal
+      @thunk_end +=1; @i += 1 # Pass the .
+
+      until( /[0-9eE]/.match( cchar ).nil? )
+        if cchar == 'e' || cchar == 'E'
+          return tokenize_exponent_literal
+        end
+        @thunk_end += 1; @i += 1
+      end
+      token = Token.new(:float_literal, thunk)
       reset_thunk!
       default_state_transitions!
       return token
