@@ -11,10 +11,10 @@ module Eden
       @thunk_st = 0
       @thunk_end = -1 # Start/end of the current token
       @current_line = Line.new( @ln )
-      
+      @length = @sf.source.length
       default_state_transitions!
 
-      until( @i == @sf.source.length )
+      until( @i >= @length )
         case( @state )
         when :newline
           @current_line.tokens << Token.new( :newline, thunk )
@@ -36,10 +36,10 @@ module Eden
           :caret, :gt, :lt, :bang, :period, :tilde, :at, :question_mark,
           :semicolon, :equals, :colon
           @current_line.tokens << tokenize_single_character
-        when :whitespace
         when :comment
         when :single_q_string, :double_q_string, :heredoc_string, :bquote_string
         when :symbol
+          @current_line.tokens << tokenize_symbol
         when :dec_literal
           @current_line.tokens << tokenize_decimal_literal
         when :bin_literal, :oct_literal, :hex_literal
@@ -53,7 +53,7 @@ module Eden
     private
     
     def thunk
-      @sf.source[@thunk_st..@thunk_end]
+      @sf.source[[@thunk_st, @length-1].min..[@thunk_end, @length-1].min]
     end
 
     def default_state_transitions!
@@ -83,7 +83,6 @@ module Eden
       when '>'  then @state = :gt
       when '<'  then @state = :lt
       when '?'  then @state = :question_mark
-      when ':'  then @state = :colon
       when ';'  then @state = :semicolon
       when '='  then @state = :equals
       when '%'  then @state = :modulo
@@ -94,6 +93,12 @@ module Eden
       when '}'  then @state = :rcurly
       when '['  then @state = :lsquare
       when ']'  then @state = :rsquare
+      when ':'
+        if peek_ahead_for(/[: ]/)
+          @state = :colon
+        else
+          @state = :symbol
+        end
       when 'a'..'z', 'A'..'Z', '_'
         @state = :identifier
       when '0'
@@ -156,7 +161,7 @@ module Eden
       until( /[A-Za-z0-9_]/.match( cchar ).nil? )
         @thunk_end += 1; @i += 1
       end
-      capture_token( :identifier )
+      capture_token( @state )
     end
 
     def tokenize_whitespace
@@ -245,6 +250,14 @@ module Eden
         @thunk_end += 1; @i += 1
       end
       capture_token( :float_literal )
+    end
+
+    def tokenize_symbol
+      @thunk_end += 1; @i += 1 # Pass the :
+      until( cchar == ' ' || cchar.nil? )
+        @thunk_end += 1; @i += 1
+      end
+      capture_token( :symbol )
     end
   end
 end
