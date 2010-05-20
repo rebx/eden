@@ -166,61 +166,49 @@ module Eden
     end
 
     def tokenize_identifier
-      until( /[A-Za-z0-9_]/.match( cchar ).nil? )
-        @thunk_end += 1; @i += 1
-      end
+      advance until( /[A-Za-z0-9_]/.match( cchar ).nil? )
       capture_token( @state )
     end
 
     def tokenize_whitespace
-      until( cchar != ' ' && cchar != '\t' )
-        @thunk_end += 1; @i += 1
-      end
+      advance until( cchar != ' ' && cchar != '\t' )
       capture_token( :whitespace )
     end
 
     def tokenize_instancevar
-      @thunk_end += 1; @i += 1 # Pass the @ symbol
-      until( /[a-z0-9_]/.match( cchar ).nil? )
-        @thunk_end += 1; @i += 1
-      end
+      advance # Pass the @ symbol
+      advance until( /[a-z0-9_]/.match( cchar ).nil? )
       capture_token( :instancevar )
     end
 
     def tokenize_classvar
-      @thunk_end += 2; @i += 2 # Pass the @@ symbol
-      until( /[a-z0-9_]/.match( cchar ).nil? )
-        @thunk_end += 1; @i += 1
-      end
+      advance(2) # Pass the @@ symbol
+      advance until( /[a-z0-9_]/.match( cchar ).nil? )
       capture_token( :classvar )
     end
 
     def tokenize_integer_literal
       if peek_ahead_for(/[_oObBxX]/)
-        @thunk_end += 2; @i += 2 # Pass 0x / 0b / 0O
+        advance(2) # Pass 0x / 0b / 0O
       else
-        @thunk_end += 1; @i += 1 # Pass 0 for Octal digits
+        advance # Pass 0 for Octal digits
       end
       pattern = {:bin_literal => /[01]/,
                  :oct_literal => /[0-7]/,
                  :hex_literal => /[0-9a-fA-F]/}[@state]
-      until( pattern.match( cchar ).nil? )
-        @thunk_end +=1; @i += 1
-      end
+      advance until( pattern.match( cchar ).nil? )
       capture_token( @state )
     end
 
     def tokenize_decimal_literal
       # Handle a lone zero
       if cchar == '0' && !peek_ahead_for(/[dD]/)
-        @thunk_end+=1; @i+=1
+        advance
         return capture_token( :dec_literal )
       end
 
       # Handle 0d1234 digits
-      if cchar == '0' && peek_ahead_for(/[dD]/)
-        @thunk_end += 2; @i += 2
-      end
+      advance(2) if cchar == '0' && peek_ahead_for(/[dD]/)
 
       until( /[0-9.eE]/.match( cchar ).nil? )
         case cchar
@@ -229,7 +217,7 @@ module Eden
         when 'e', 'E'
           return tokenize_exponent_literal
         when '0'..'9'
-          @thunk_end += 1; @i += 1
+          advance
         else
         end
       end
@@ -237,39 +225,32 @@ module Eden
     end
 
     def tokenize_exponent_literal
-      @thunk_end +=1; @i += 1 # Pass the e/E
-      if cchar == '+' or cchar == '-'
-        @thunk_end += 1; @i += 1
-      end
-
-      until( /[0-9]/.match( cchar ).nil? )
-        @thunk_end +=1; @i += 1
-      end
+      advance # Pass the e/E
+      advance if cchar == '+' or cchar == '-'
+      advance until( /[0-9]/.match( cchar ).nil? )
       capture_token( :exp_literal )
     end
 
     def tokenize_float_literal
-      @thunk_end +=1; @i += 1 # Pass the .
+      advance # Pass the .
 
       until( /[0-9eE]/.match( cchar ).nil? )
         if cchar == 'e' || cchar == 'E'
           return tokenize_exponent_literal
         end
-        @thunk_end += 1; @i += 1
+        advance
       end
       capture_token( :float_literal )
     end
 
     def tokenize_symbol
-      @thunk_end += 1; @i += 1 # Pass the :
-      until( cchar == ' ' || cchar.nil? )
-        @thunk_end += 1; @i += 1
-      end
+      advance # Pass the :
+      advance until( cchar == ' ' || cchar.nil? )
       capture_token( :symbol )
     end
 
     def tokenize_single_quote_string
-      @thunk_end += 1; @i += 1 # Pass the opening quote
+      advance # Pass the opening quote
       until( cchar == '\'' || @i >= @length)
         if cchar == '\\'
           advance(2) # Pass the escaped character
