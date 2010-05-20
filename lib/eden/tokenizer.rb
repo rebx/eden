@@ -37,7 +37,9 @@ module Eden
           :semicolon, :equals, :colon
           @current_line.tokens << tokenize_single_character
         when :comment
-        when :single_q_string, :double_q_string, :heredoc_string, :bquote_string
+        when :single_q_string 
+          @current_line.tokens << tokenize_single_quote_string
+        when :double_q_string, :heredoc_string, :bquote_string
         when :symbol
           @current_line.tokens << tokenize_symbol
         when :dec_literal
@@ -58,6 +60,7 @@ module Eden
 
     def default_state_transitions!
       case( cchar )
+      when nil  then @state = :eof
       when ' '  then @state = :whitespace
       when '\t' then @state = :whitespace
       when '"'  then @state = :double_q_string
@@ -129,6 +132,11 @@ module Eden
     # Returns the current character
     def cchar
       @sf.source[@i..@i]
+    end
+
+    # Advance the current position in the source file
+    def advance( num=1 )
+      @thunk_end += num; @i += num
     end
 
     # Resets the thunk to start at the current character
@@ -258,6 +266,19 @@ module Eden
         @thunk_end += 1; @i += 1
       end
       capture_token( :symbol )
+    end
+
+    def tokenize_single_quote_string
+      @thunk_end += 1; @i += 1 # Pass the opening quote
+      until( cchar == '\'' || @i >= @length)
+        if cchar == '\\'
+          advance(2) # Pass the escaped character
+        else
+          advance
+        end
+      end
+      advance # Pass the closing quote
+      capture_token( :single_q_string )
     end
   end
 end
