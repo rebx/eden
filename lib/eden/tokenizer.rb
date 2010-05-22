@@ -1,5 +1,13 @@
+require 'tokenizers/basic_tokenizer'
+require 'tokenizers/string_tokenizer'
+require 'tokenizers/number_tokenizer'
+
 module Eden
   class Tokenizer
+    include BasicTokenizer
+    include StringTokenizer
+    include NumberTokenizer
+
     def initialize( source_file )
       @sf = source_file
     end
@@ -157,136 +165,6 @@ module Eden
       reset_thunk!
       default_state_transitions!
       return token
-    end
-
-    def tokenize_single_character
-      @thunk_end += 1
-      token = Token.new(@state, thunk)
-      @i += 1
-      reset_thunk!
-      default_state_transitions!
-      return token
-    end
-
-    def tokenize_identifier
-      advance until( /[A-Za-z0-9_]/.match( cchar ).nil? )
-      capture_token( @state )
-    end
-
-    def tokenize_whitespace
-      advance until( cchar != ' ' && cchar != '\t' )
-      capture_token( :whitespace )
-    end
-
-    def tokenize_instancevar
-      advance # Pass the @ symbol
-      advance until( /[a-z0-9_]/.match( cchar ).nil? )
-      capture_token( :instancevar )
-    end
-
-    def tokenize_classvar
-      advance(2) # Pass the @@ symbol
-      advance until( /[a-z0-9_]/.match( cchar ).nil? )
-      capture_token( :classvar )
-    end
-
-    def tokenize_integer_literal
-      if peek_ahead_for(/[_oObBxX]/)
-        advance(2) # Pass 0x / 0b / 0O
-      else
-        advance # Pass 0 for Octal digits
-      end
-      pattern = {:bin_literal => /[01]/,
-                 :oct_literal => /[0-7]/,
-                 :hex_literal => /[0-9a-fA-F]/}[@state]
-      advance until( pattern.match( cchar ).nil? )
-      capture_token( @state )
-    end
-
-    def tokenize_decimal_literal
-      # Handle a lone zero
-      if cchar == '0' && !peek_ahead_for(/[dD]/)
-        advance
-        return capture_token( :dec_literal )
-      end
-
-      # Handle 0d1234 digits
-      advance(2) if cchar == '0' && peek_ahead_for(/[dD]/)
-
-      until( /[0-9.eE]/.match( cchar ).nil? )
-        case cchar
-        when '.'
-          return tokenize_float_literal
-        when 'e', 'E'
-          return tokenize_exponent_literal
-        when '0'..'9'
-          advance
-        else
-        end
-      end
-      capture_token( :dec_literal )
-    end
-
-    def tokenize_exponent_literal
-      advance # Pass the e/E
-      advance if cchar == '+' or cchar == '-'
-      advance until( /[0-9]/.match( cchar ).nil? )
-      capture_token( :exp_literal )
-    end
-
-    def tokenize_float_literal
-      advance # Pass the .
-
-      until( /[0-9eE]/.match( cchar ).nil? )
-        if cchar == 'e' || cchar == 'E'
-          return tokenize_exponent_literal
-        end
-        advance
-      end
-      capture_token( :float_literal )
-    end
-
-    def tokenize_symbol
-      advance # Pass the :
-      case cchar
-      when '"'  then return tokenize_double_quote_string
-      when '\'' then return tokenize_single_quote_string
-      end
-      advance until( cchar == ' ' || cchar.nil? )
-      capture_token( :symbol )
-    end
-
-    def tokenize_single_quote_string
-      advance # Pass the opening quote
-      until( cchar == '\'' || @i >= @length)
-        if cchar == '\\'
-          advance(2) # Pass the escaped character
-        else
-          advance
-        end
-      end
-      advance # Pass the closing quote
-      capture_token( @state )
-    end
-
-    def tokenize_backquote_string
-      advance # Pass the opening backquote
-      advance until( cchar == '`' || @i >= @length )
-      advance # Pass the closing backquote
-      capture_token( :backquote_string )
-    end
-
-    def tokenize_double_quote_string
-      advance # Pass the opening backquote
-      until( cchar == '"' || @i >= @length )
-        if cchar == '\\'
-          advance(2) # Pass the escaped character
-        else
-          advance
-        end
-      end
-      advance # Pass the closing backquote
-      capture_token( @state )
     end
   end
 end
