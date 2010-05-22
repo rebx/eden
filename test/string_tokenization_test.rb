@@ -33,4 +33,17 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal "`end", tokens[4].content
   end
 
+  def test_double_quote_string_tokenisation
+    @sf.stubs(:source).returns('"test" "test\#\{inter\}test" "end')
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal '"test"', tokens[0].content
+    assert_equal :double_q_string, tokens[2].type
+    assert_equal '"test\#\{inter\}test"', tokens[2].content
+    assert_equal :double_q_string, tokens[4].type
+    assert_equal '"end', tokens[4].content
+  end
+
 end

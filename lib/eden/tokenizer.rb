@@ -39,7 +39,8 @@ module Eden
         when :comment
         when :single_q_string 
           @current_line.tokens << tokenize_single_quote_string
-        when :double_q_string, :heredoc_string
+        when :double_q_string
+          @current_line.tokens << tokenize_double_quote_string
         when :backquote_string
           @current_line.tokens << tokenize_backquote_string
         when :symbol
@@ -269,6 +270,13 @@ module Eden
       advance until( cchar == '`' || @i >= @length )
       advance # Pass the closing backquote
       capture_token( :backquote_string )
+    end
+
+    def tokenize_double_quote_string
+      advance # Pass the opening backquote
+      advance until( cchar == '"' || @i >= @length )
+      advance # Pass the closing backquote
+      capture_token( :double_q_string )
     end
   end
 end
