@@ -1,6 +1,6 @@
-require 'tokenizers/basic_tokenizer'
-require 'tokenizers/string_tokenizer'
-require 'tokenizers/number_tokenizer'
+require 'eden/tokenizers/basic_tokenizer'
+require 'eden/tokenizers/string_tokenizer'
+require 'eden/tokenizers/number_tokenizer'
 
 module Eden
   class Tokenizer
