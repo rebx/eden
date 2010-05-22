@@ -20,4 +20,17 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal "'te\"st'", tokens[6].content
   end
 
+  def test_backquote_string_tokenisation
+    @sf.stubs(:source).returns("`exec` `exec \#\{\"cmd\"\}` `end")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :backquote_string, tokens[0].type
+    assert_equal "`exec`", tokens[0].content
+    assert_equal :backquote_string, tokens[2].type
+    assert_equal "`exec \#\{\"cmd\"\}`", tokens[2].content
+    assert_equal :backquote_string, tokens[4].type
+    assert_equal "`end", tokens[4].content
+  end
+
 end
