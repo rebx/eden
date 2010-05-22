@@ -262,7 +262,7 @@ module Eden
         end
       end
       advance # Pass the closing quote
-      capture_token( :single_q_string )
+      capture_token( @state )
     end
 
     def tokenize_backquote_string
@@ -274,9 +274,15 @@ module Eden
 
     def tokenize_double_quote_string
       advance # Pass the opening backquote
-      advance until( cchar == '"' || @i >= @length )
+      until( cchar == '"' || @i >= @length )
+        if cchar == '\\'
+          advance(2) # Pass the escaped character
+        else
+          advance
+        end
+      end
       advance # Pass the closing backquote
-      capture_token( :double_q_string )
+      capture_token( @state )
     end
   end
 end
