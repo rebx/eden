@@ -248,6 +248,10 @@ module Eden
 
     def tokenize_symbol
       advance # Pass the :
+      case cchar
+      when '"'  then return tokenize_double_quote_string
+      when '\'' then return tokenize_single_quote_string
+      end
       advance until( cchar == ' ' || cchar.nil? )
       capture_token( :symbol )
     end
