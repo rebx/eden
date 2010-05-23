@@ -10,6 +10,7 @@ module Eden
 
     def initialize( source_file )
       @sf = source_file
+      @interpolating = [] # Stack for state when interpolating into strings
     end
       
     def tokenize!
@@ -26,7 +27,7 @@ module Eden
         case( @state )
         when :newline
           @current_line.tokens << Token.new( :newline, thunk )
-          @sf.lines << @current_line
+          @sf.lines << @current_line.flatten!
           @ln += 1
           @current_line = Line.new( @ln )
         when :whitespace
@@ -38,8 +39,10 @@ module Eden
         when :classvar
           @current_line.tokens << tokenize_classvar
         when :lparen, :rparen, :lsquare, :rsquare,
-          :lcurly, :rcurly, :comma
+          :lcurly, :comma
           @current_line.tokens << tokenize_single_character
+        when :rcurly
+          @current_line.tokens << tokenize_rcurly
         when :plus, :minus, :equals, :modulo, :multiply, :ampersand, :pipe,
           :caret, :gt, :lt, :bang, :period, :tilde, :at, :question_mark,
           :semicolon, :equals, :colon
@@ -60,7 +63,7 @@ module Eden
         when :regex
         end
       end
-      @sf.lines << @current_line
+      @sf.lines << @current_line.flatten!
     end
 
     private
@@ -103,7 +106,9 @@ module Eden
       when '*'  then @state = :multiply
       when '('  then @state = :lparen
       when ')'  then @state = :rparen
-      when '{'  then @state = :lcurly
+      when '{'
+        @interpolating << nil
+        @state = :lcurly
       when '}'  then @state = :rcurly
       when '['  then @state = :lsquare
       when ']'  then @state = :rsquare

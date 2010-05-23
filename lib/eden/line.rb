@@ -7,5 +7,10 @@ module Eden
       @tokens = []
       @warnings = []
     end
+
+    def flatten!
+      @tokens.flatten!
+      self
+    end
   end
 end

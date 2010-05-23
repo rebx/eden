@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'ruby-debug'
+
 module Eden
   module BasicTokenizer
     def tokenize_single_character
@@ -7,6 +10,25 @@ module Eden
       reset_thunk!
       default_state_transitions!
       return token
+    end
+
+    def tokenize_rcurly
+      @thunk_end += 1
+      old_state = @interpolating.delete_at(-1)
+      tokens = []
+      if old_state
+        tokens << Token.new(@state, thunk)
+        @i += 1
+        reset_thunk!
+        @state = old_state
+        tokens << tokenize_double_quote_string
+      else
+        tokens << Token.new(@state, thunk)
+        @i += 1
+        reset_thunk!
+      end
+      default_state_transitions!
+      return tokens
     end
 
     def tokenize_identifier
