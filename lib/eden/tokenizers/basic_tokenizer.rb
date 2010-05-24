@@ -112,6 +112,11 @@ module Eden
       capture_token( :whitespace )
     end
 
+    def tokenize_comment
+      advance until( cchar == "\n" || cchar.nil?)
+      capture_token( :comment )
+    end
+
     def tokenize_instancevar
       advance # Pass the @ symbol
       advance until( /[a-z0-9_]/.match( cchar ).nil? )

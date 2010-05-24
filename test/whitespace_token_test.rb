@@ -31,4 +31,15 @@ class WhitespaceTokenTest < Test::Unit::TestCase
     assert_equal " ", line.tokens[1].content
     assert_equal :whitespace, line.tokens[1].type
   end
+
+  def test_comment_tokenization
+    @sf.stubs(:source).returns("token # Comment Rah Rah Rah\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 4, tokens.size
+    assert_equal "# Comment Rah Rah Rah", tokens[2].content
+    assert_equal :comment, tokens[2].type
+    assert_equal "\n", tokens[3].content
+    assert_equal :newline, tokens[3].type
+  end
 end

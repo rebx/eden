@@ -26,10 +26,8 @@ module Eden
       until( @i >= @length )
         case( @state )
         when :newline
-          @current_line.tokens << Token.new( :newline, thunk )
-          @sf.lines << @current_line.flatten!
-          @ln += 1
-          @current_line = Line.new( @ln )
+          advance
+          @current_line.tokens << capture_token( :newline )
         when :whitespace
           @current_line.tokens << tokenize_whitespace
         when :identifier # keyword / name / etc
@@ -58,6 +56,7 @@ module Eden
         when :divide
           @current_line.tokens << tokenize_divide_operators
         when :comment
+          @current_line.tokens << tokenize_comment
         when :single_q_string 
           @current_line.tokens << tokenize_single_quote_string
         when :double_q_string
@@ -87,6 +86,7 @@ module Eden
       when nil  then @state = :eof
       when ' '  then @state = :whitespace
       when '\t' then @state = :whitespace
+      when "\n" then @state = :newline
       when '"'  then @state = :double_q_string
       when '\'' then @state = :single_q_string
       when '`'  then @state = :backquote_string
