@@ -12,6 +12,77 @@ module Eden
       return token
     end
 
+    def tokenize_equals_operators
+      advance
+      case cchar
+      when '>'
+        advance
+        return capture_token(:hash_rocket)
+      when '='
+        advance
+        return capture_token(:equality)
+      else
+        return capture_token(:equals)
+      end
+    end
+
+    def tokenize_plus_operators
+      advance
+      case cchar
+      when '='
+        advance
+        return capture_token(:plus_equals)
+      when '@'
+        advance
+        return capture_token(:plus_at)
+      else
+        return capture_token(:plus)
+      end
+    end
+
+    def tokenize_minus_operators
+      advance
+      case cchar
+      when '='
+        advance
+        return capture_token(:minus_equals)
+      when '@'
+        advance
+        return capture_token(:minus_at)
+      else
+        return capture_token(:minus)
+      end
+    end
+
+    def tokenize_multiply_operators
+      advance
+      case cchar
+      when '*'
+        advance
+        if cchar == '='
+          advance
+          return capture_token(:exponent_equals)
+        else
+          return capture_token(:exponent)
+        end
+      when '='
+        advance
+        return capture_token(:multiply_equals)
+      else
+        return capture_token(:multiply)
+      end
+    end
+
+    def tokenize_divide_operators
+      advance
+      if cchar == '='
+        advance
+        return capture_token(:divide_equals)
+      else
+        return capture_token(:divide)
+      end
+    end
+
     def tokenize_rcurly
       @thunk_end += 1
       old_state = @interpolating.delete_at(-1)

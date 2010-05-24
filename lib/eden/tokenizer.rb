@@ -43,10 +43,20 @@ module Eden
           @current_line.tokens << tokenize_single_character
         when :rcurly
           @current_line.tokens << tokenize_rcurly
-        when :plus, :minus, :equals, :modulo, :multiply, :ampersand, :pipe,
+        when :modulo, :ampersand, :pipe,
           :caret, :gt, :lt, :bang, :period, :tilde, :at, :question_mark,
-          :semicolon, :equals, :colon
+          :semicolon, :colon
           @current_line.tokens << tokenize_single_character
+        when :plus
+          @current_line.tokens << tokenize_plus_operators
+        when :minus
+          @current_line.tokens << tokenize_minus_operators
+        when :equals
+          @current_line.tokens << tokenize_equals_operators
+        when :multiply
+          @current_line.tokens << tokenize_multiply_operators
+        when :divide
+          @current_line.tokens << tokenize_divide_operators
         when :comment
         when :single_q_string 
           @current_line.tokens << tokenize_single_quote_string
@@ -88,7 +98,7 @@ module Eden
         else 
           @state = :at
         end
-      when '/'  then @state = :regex
+      when '/'  then @state = :divide
       when '#'  then @state = :comment
       when ','  then @state = :comma
       when '.'  then @state = :period
