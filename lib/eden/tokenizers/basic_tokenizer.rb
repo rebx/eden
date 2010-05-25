@@ -83,6 +83,49 @@ module Eden
       end
     end
 
+    def tokenize_lt_operators
+      advance
+      case cchar
+      when '<'
+        advance
+        if cchar == '='
+          advance
+          return capture_token(:left_shift_equals)
+        else
+          return capture_token(:left_shift)
+        end
+      when '='
+        advance
+        if cchar == '>'
+          advance
+          return capture_token(:sort_operator)
+        else
+          return capture_token(:lte)
+        end
+      else
+        return capture_token(:lt)
+      end
+    end
+
+    def tokenize_gt_operators
+      advance
+      case cchar
+      when '>'
+        advance
+        if cchar == '='
+          advance
+          return capture_token(:right_shift_equals)
+        else
+          return capture_token(:right_shift)
+        end
+      when '='
+        advance
+        return capture_token(:gte)
+      else
+        return capture_token(:gt)
+      end
+    end
+
     def tokenize_rcurly
       @thunk_end += 1
       old_state = @interpolating.delete_at(-1)

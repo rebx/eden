@@ -69,4 +69,36 @@ class OperatorTokenizationTest < Test::Unit::TestCase
     assert_equal :divide_equals, tokens[2].type
     assert_equal "/=", tokens[2].content
   end
+
+  def test_lt_tokenization
+    @sf.stubs(:source).returns("< <= << <<= <=>")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 9, tokens.size
+    assert_equal :lt, tokens[0].type
+    assert_equal "<", tokens[0].content
+    assert_equal :lte, tokens[2].type
+    assert_equal "<=", tokens[2].content
+    assert_equal :left_shift, tokens[4].type
+    assert_equal "<<", tokens[4].content
+    assert_equal :left_shift_equals, tokens[6].type
+    assert_equal "<<=", tokens[6].content
+    assert_equal :sort_operator, tokens[8].type
+    assert_equal "<=>", tokens[8].content
+  end
+
+  def test_gt_tokenization
+    @sf.stubs(:source).returns("> >= >> >>=")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 7, tokens.size
+    assert_equal :gt, tokens[0].type
+    assert_equal ">", tokens[0].content
+    assert_equal :gte, tokens[2].type
+    assert_equal ">=", tokens[2].content
+    assert_equal :right_shift, tokens[4].type
+    assert_equal ">>", tokens[4].content
+    assert_equal :right_shift_equals, tokens[6].type
+    assert_equal ">>=", tokens[6].content
+  end
 end
