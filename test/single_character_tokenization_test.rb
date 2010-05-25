@@ -6,7 +6,7 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
   end
 
   def test_single_character_tokenisation
-    @sf.stubs(:source).returns("<>!~@%^&*()[]{}|.: ;=?+-")
+    @sf.stubs(:source).returns("<>~!@%^&*()[]{}|.: ;=?+-")
     @sf.tokenize!
     line = @sf.lines[0]
     assert_equal 24, line.tokens.size
@@ -14,10 +14,10 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
     assert_equal :lt, line.tokens[0].type
     assert_equal ">", line.tokens[1].content
     assert_equal :gt, line.tokens[1].type
-    assert_equal "!", line.tokens[2].content
-    assert_equal :bang, line.tokens[2].type
-    assert_equal "~", line.tokens[3].content
-    assert_equal :tilde, line.tokens[3].type
+    assert_equal "~", line.tokens[2].content
+    assert_equal :tilde, line.tokens[2].type
+    assert_equal "!", line.tokens[3].content
+    assert_equal :logical_not, line.tokens[3].type
     assert_equal "@", line.tokens[4].content
     assert_equal :at, line.tokens[4].type
     assert_equal "%", line.tokens[5].content

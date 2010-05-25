@@ -17,6 +17,8 @@ module Eden
       case cchar
       when '>'
         advance and return capture_token(:hash_rocket)
+      when "~"
+        advance and return capture_token(:matches)
       when '='
         advance
         if cchar == '='
@@ -26,6 +28,18 @@ module Eden
         end
       else
         return capture_token(:equals)
+      end
+    end
+
+    def tokenize_bang_operators
+      advance
+      case cchar
+      when '='
+        advance and capture_token(:not_equals)
+      when '~'
+        advance and capture_token(:not_matches)
+      else
+        capture_token(:logical_not)
       end
     end
 
