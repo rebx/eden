@@ -6,16 +6,18 @@ class OperatorTokenizationTest < Test::Unit::TestCase
   end
 
   def test_equals_tokenization
-    @sf.stubs(:source).returns("= == =>")
+    @sf.stubs(:source).returns("= == => ===")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 5, tokens.size
+    assert_equal 7, tokens.size
     assert_equal :equals, tokens[0].type
     assert_equal "=", tokens[0].content
     assert_equal :equality, tokens[2].type
     assert_equal "==", tokens[2].content
     assert_equal :hash_rocket, tokens[4].type
     assert_equal "=>", tokens[4].content
+    assert_equal :identity_equality, tokens[6].type
+    assert_equal "===", tokens[6].content
   end
 
   def test_plus_tokenization

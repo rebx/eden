@@ -16,11 +16,14 @@ module Eden
       advance
       case cchar
       when '>'
-        advance
-        return capture_token(:hash_rocket)
+        advance and return capture_token(:hash_rocket)
       when '='
         advance
-        return capture_token(:equality)
+        if cchar == '='
+          advance and return capture_token(:identity_equality)
+        else
+          return capture_token(:equality)
+        end
       else
         return capture_token(:equals)
       end
