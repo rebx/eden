@@ -116,16 +116,48 @@ module Eden
       when '>'
         advance
         if cchar == '='
-          advance
-          return capture_token(:right_shift_equals)
+          advance and capture_token(:right_shift_equals)
         else
-          return capture_token(:right_shift)
+          capture_token(:right_shift)
         end
       when '='
-        advance
-        return capture_token(:gte)
+        advance and capture_token(:gte)
       else
-        return capture_token(:gt)
+        capture_token(:gt)
+      end
+    end
+
+    def tokenize_pipe_operators
+      advance
+      case cchar
+      when '|'
+        advance
+        if cchar == '='
+          advance and capture_token(:logical_or_equals)
+        else
+          capture_token(:logical_or)
+        end
+      when '='
+        advance and capture_token(:bitwise_or_equals)
+      else
+        capture_token(:bitwise_or)
+      end
+    end
+
+    def tokenize_ampersand_operators
+      advance
+      case cchar
+      when '&'
+        advance
+        if cchar == '='
+          advance and capture_token(:logical_and_equals)
+        else
+          capture_token(:logical_and)
+        end
+      when '='
+        advance and capture_token(:bitwise_and_equals)
+      else
+        capture_token(:bitwise_and)
       end
     end
 

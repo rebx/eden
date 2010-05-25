@@ -25,7 +25,7 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
     assert_equal "^", line.tokens[6].content
     assert_equal :caret, line.tokens[6].type
     assert_equal "&", line.tokens[7].content
-    assert_equal :ampersand, line.tokens[7].type
+    assert_equal :bitwise_and, line.tokens[7].type
     assert_equal "*", line.tokens[8].content
     assert_equal :multiply, line.tokens[8].type
     assert_equal "(", line.tokens[9].content
@@ -41,7 +41,7 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
     assert_equal "}", line.tokens[14].content
     assert_equal :rcurly, line.tokens[14].type
     assert_equal "|", line.tokens[15].content
-    assert_equal :pipe, line.tokens[15].type
+    assert_equal :bitwise_or, line.tokens[15].type
     assert_equal ".", line.tokens[16].content
     assert_equal :period, line.tokens[16].type
     assert_equal ":", line.tokens[17].content

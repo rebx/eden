@@ -103,4 +103,34 @@ class OperatorTokenizationTest < Test::Unit::TestCase
     assert_equal :right_shift_equals, tokens[6].type
     assert_equal ">>=", tokens[6].content
   end
+
+  def test_pipe_tokenization
+    @sf.stubs(:source).returns("| |= || ||=")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 7, tokens.size
+    assert_equal :bitwise_or, tokens[0].type
+    assert_equal "|", tokens[0].content
+    assert_equal :bitwise_or_equals, tokens[2].type
+    assert_equal "|=", tokens[2].content
+    assert_equal :logical_or, tokens[4].type
+    assert_equal "||", tokens[4].content
+    assert_equal :logical_or_equals, tokens[6].type
+    assert_equal "||=", tokens[6].content
+  end
+
+  def test_pipe_tokenization
+    @sf.stubs(:source).returns("& &= && &&=")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 7, tokens.size
+    assert_equal :bitwise_and, tokens[0].type
+    assert_equal "&", tokens[0].content
+    assert_equal :bitwise_and_equals, tokens[2].type
+    assert_equal "&=", tokens[2].content
+    assert_equal :logical_and, tokens[4].type
+    assert_equal "&&", tokens[4].content
+    assert_equal :logical_and_equals, tokens[6].type
+    assert_equal "&&=", tokens[6].content
+  end
 end
