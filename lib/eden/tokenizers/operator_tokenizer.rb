@@ -4,18 +4,18 @@ module Eden
       advance
       case cchar
       when '>'
-        advance and return capture_token(:hash_rocket)
+        advance and capture_token(:hash_rocket)
       when "~"
-        advance and return capture_token(:matches)
+        advance and capture_token(:matches)
       when '='
         advance
         if cchar == '='
-          advance and return capture_token(:identity_equality)
+          advance and capture_token(:identity_equality)
         else
-          return capture_token(:equality)
+          capture_token(:equality)
         end
       else
-        return capture_token(:equals)
+        capture_token(:equals)
       end
     end
 
@@ -35,13 +35,11 @@ module Eden
       advance
       case cchar
       when '='
-        advance
-        return capture_token(:plus_equals)
+        advance and capture_token(:plus_equals)
       when '@'
-        advance
-        return capture_token(:plus_at)
+        advance and capture_token(:plus_at)
       else
-        return capture_token(:plus)
+        capture_token(:plus)
       end
     end
 
@@ -49,13 +47,11 @@ module Eden
       advance
       case cchar
       when '='
-        advance
-        return capture_token(:minus_equals)
+        advance and capture_token(:minus_equals)
       when '@'
-        advance
-        return capture_token(:minus_at)
+        advance and capture_token(:minus_at)
       else
-        return capture_token(:minus)
+        capture_token(:minus)
       end
     end
 
@@ -65,26 +61,23 @@ module Eden
       when '*'
         advance
         if cchar == '='
-          advance
-          return capture_token(:exponent_equals)
+          advance and capture_token(:exponent_equals)
         else
-          return capture_token(:exponent)
+          capture_token(:exponent)
         end
       when '='
-        advance
-        return capture_token(:multiply_equals)
+        advance and capture_token(:multiply_equals)
       else
-        return capture_token(:multiply)
+        capture_token(:multiply)
       end
     end
 
     def tokenize_divide_operators
       advance
       if cchar == '='
-        advance
-        return capture_token(:divide_equals)
+        advance and capture_token(:divide_equals)
       else
-        return capture_token(:divide)
+        capture_token(:divide)
       end
     end
 
@@ -94,21 +87,19 @@ module Eden
       when '<'
         advance
         if cchar == '='
-          advance
-          return capture_token(:left_shift_equals)
+          advance and capture_token(:left_shift_equals)
         else
-          return capture_token(:left_shift)
+          capture_token(:left_shift)
         end
       when '='
         advance
         if cchar == '>'
-          advance
-          return capture_token(:sort_operator)
+          advance and capture_token(:sort_operator)
         else
-          return capture_token(:lte)
+          capture_token(:lte)
         end
       else
-        return capture_token(:lt)
+        capture_token(:lt)
       end
     end
 
