@@ -1,12 +1,15 @@
 require 'eden/tokenizers/basic_tokenizer'
-require 'eden/tokenizers/string_tokenizer'
 require 'eden/tokenizers/number_tokenizer'
+require 'eden/tokenizers/operator_tokenizer'
+require 'eden/tokenizers/string_tokenizer'
+
 
 module Eden
   class Tokenizer
     include BasicTokenizer
-    include StringTokenizer
     include NumberTokenizer
+    include OperatorTokenizer
+    include StringTokenizer
 
     def initialize( source_file )
       @sf = source_file
