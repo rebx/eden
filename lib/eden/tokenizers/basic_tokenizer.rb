@@ -161,6 +161,24 @@ module Eden
       end
     end
 
+    def tokenize_caret_operators
+      advance
+      if cchar == "="
+        advance and capture_token(:caret_equals)
+      else
+        capture_token(:caret)
+      end
+    end
+
+    def tokenize_modulo_operators
+      advance
+      if cchar == "="
+        advance and capture_token(:modulo_equals)
+      else
+        capture_token(:modulo)
+      end
+    end
+
     def tokenize_rcurly
       @thunk_end += 1
       old_state = @interpolating.delete_at(-1)

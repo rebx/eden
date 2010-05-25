@@ -41,8 +41,7 @@ module Eden
           @current_line.tokens << tokenize_single_character
         when :rcurly
           @current_line.tokens << tokenize_rcurly
-        when :modulo,
-          :caret, :bang, :period, :tilde, :at, :question_mark,
+        when :bang, :period, :tilde, :at, :question_mark,
           :semicolon, :colon
           @current_line.tokens << tokenize_single_character
         when :plus
@@ -63,6 +62,10 @@ module Eden
           @current_line.tokens << tokenize_pipe_operators
         when :ampersand
           @current_line.tokens << tokenize_ampersand_operators
+        when :modulo
+          @current_line.tokens << tokenize_modulo_operators
+        when :caret
+          @current_line.tokens << tokenize_caret_operators
         when :comment
           @current_line.tokens << tokenize_comment
         when :single_q_string 

@@ -133,4 +133,26 @@ class OperatorTokenizationTest < Test::Unit::TestCase
     assert_equal :logical_and_equals, tokens[6].type
     assert_equal "&&=", tokens[6].content
   end
+
+  def test_caret_tokenization
+    @sf.stubs(:source).returns("^ ^=")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 3, tokens.size
+    assert_equal :caret, tokens[0].type
+    assert_equal "^", tokens[0].content
+    assert_equal :caret_equals, tokens[2].type
+    assert_equal "^=", tokens[2].content
+  end
+
+  def test_modulo_tokenization
+    @sf.stubs(:source).returns("% %=")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 3, tokens.size
+    assert_equal :modulo, tokens[0].type
+    assert_equal "%", tokens[0].content
+    assert_equal :modulo_equals, tokens[2].type
+    assert_equal "%=", tokens[2].content
+  end
 end
