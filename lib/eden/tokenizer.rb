@@ -31,6 +31,9 @@ module Eden
         when :newline
           advance
           @current_line.tokens << capture_token( :newline )
+          @sf.lines << @current_line
+          @ln += 1
+          @current_line = Line.new( @ln )
         when :whitespace
           @current_line.tokens << tokenize_whitespace
         when :identifier # keyword / name / etc
