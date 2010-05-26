@@ -61,8 +61,20 @@ module Eden
       when '"'  then return tokenize_double_quote_string
       when '\'' then return tokenize_single_quote_string
       end
-      advance until( cchar == ' ' || cchar.nil? )
+      advance while( /[A-Za-z0-9_!=\?]/.match(cchar) )
       capture_token( :symbol )
+    end
+
+    def tokenize_globalvar
+      advance # Pass the $
+      if /[!@_\.&~0-9=\/\\\*$\?:]/.match( cchar )
+        advance and capture_token( :globalvar )
+      elsif /[A-Za-z0-9_]/.match( cchar )
+        advance while /[A-Za-z0-9_]/.match( cchar )
+        capture_token( :globalvar )
+      else
+        raise "Invalid Global Variable Name"
+      end
     end
 
     # Takes an identifier token, and tranforms its type to

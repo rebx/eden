@@ -42,6 +42,8 @@ module Eden
           @current_line.tokens << tokenize_instancevar
         when :classvar
           @current_line.tokens << tokenize_classvar
+        when :globalvar
+          @current_line.tokens << tokenize_globalvar
         when :lparen, :rparen, :lsquare, :rsquare,
           :lcurly, :comma
           @current_line.tokens << tokenize_single_character
@@ -109,6 +111,7 @@ module Eden
       when '"'  then @state = :double_q_string
       when '\'' then @state = :single_q_string
       when '`'  then @state = :backquote_string
+      when '$'  then @state = :globalvar
       when '@'
         if peek_ahead_for( /@/ )
           @state = :classvar
