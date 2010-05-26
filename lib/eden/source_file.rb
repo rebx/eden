@@ -1,5 +1,3 @@
-require 'syntax'
-
 module Eden
   class SourceFile
     attr_accessor :source, :lines
@@ -10,7 +8,8 @@ module Eden
     end
 
     def load!
-      @source = File.read( @file_name, "r" )
+      file = File.open( @file_name, "r" )
+      @source = file.read
     end
 
     def tokenize!

@@ -6,5 +6,13 @@ module Eden
       @type = type
       @content = content
     end
+
+    def inspect
+      if @content.nil? || @content == "\n"
+        @type.to_s
+      else
+        @type.to_s + "- \"" + @content + "\""
+      end
+    end
   end
 end
