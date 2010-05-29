@@ -72,4 +72,13 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal 'str"', tokens[6].content
   end
 
+  def test_delimited_backquote_string_tokenization
+    @sf.stubs(:source).returns("%x{rah --e}")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal :backquote_string, tokens[0].type
+    assert_equal "%x{rah --e}", tokens[0].content
+  end
+
 end

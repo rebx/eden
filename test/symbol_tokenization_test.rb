@@ -29,4 +29,19 @@ class SumbolTokenizationTest < Test::Unit::TestCase
     assert_equal ":\"dynamic symbol\"", tokens[2].content
   end
 
+  def test_dynamic_symbol_tokenization2
+    @sf.stubs(:source).returns("%s{rah} %s(rah) %s:rah: %s<rah<rah>rah>")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 7, tokens.size
+    assert_equal :symbol, tokens[0].type
+    assert_equal "%s{rah}", tokens[0].content
+    assert_equal :symbol, tokens[2].type
+    assert_equal "%s(rah)", tokens[2].content
+    assert_equal :symbol, tokens[4].type
+    assert_equal "%s:rah:", tokens[4].content
+    assert_equal :symbol, tokens[6].type
+    assert_equal "%s<rah<rah>rah>", tokens[6].content
+  end
+
 end
