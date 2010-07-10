@@ -53,9 +53,10 @@ module Eden
           @current_line.tokens << tokenize_single_character
         when :rcurly
           @current_line.tokens << tokenize_rcurly
-        when :tilde, :at, :question_mark,
-          :semicolon, :colon
+        when :tilde, :at, :question_mark, :semicolon
           @current_line.tokens << tokenize_single_character
+        when :colon
+          @current_line.tokens << tokenize_colon
         when :period
           @current_line.tokens << tokenize_period
         when :plus
@@ -188,6 +189,24 @@ module Eden
           @state = ( cchar == '+' ? :plus : :minus )
         end
       end
+    end
+
+    # Manages the expression state to match the state machine in parse.c
+    def default_expr_state_transition!
+      if @expr_state == :fname || @expr_state == :dot
+        @expr_state = :arg
+      else
+        @expr_state = :beg
+      end
+    end
+
+    # Helper functions for expression state, from parse.c:9334
+    def is_arg
+      [:arg, :cmd_arg].include?( @expr_state )
+    end
+
+    def is_beg
+      [:beg, :mid, :class].include?( @expr_state )
     end
 
     # Returns the current character

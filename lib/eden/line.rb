@@ -12,5 +12,9 @@ module Eden
       @tokens.flatten!
       self
     end
+
+    def last_token_is_space?
+      @tokens[-1].type == :whitespace
+    end
   end
 end

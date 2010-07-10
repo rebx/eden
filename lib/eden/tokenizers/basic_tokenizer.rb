@@ -41,6 +41,23 @@ module Eden
       return tokens
     end
 
+    # tokenizes operators beginning with a colon
+    def tokenize_colon
+      advance
+      if cchar == ':'
+        advance
+        if is_beg || (is_arg && @line.last_token_is_space?)
+          @expr_state = :beg
+        else
+          @expr_state = :dot
+        end
+        return capture_token( :scope_res )
+      else
+        @expr_state = :beg
+        return capture_token(:colon)
+      end
+    end
+
     def tokenize_identifier
       advance until( /[A-Za-z0-9_]/.match( cchar ).nil? )
       translate_keyword_tokens(capture_token( @state ))
