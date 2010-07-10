@@ -1,49 +1,36 @@
 module Eden
   module RegexTokenizer
     def tokenize_potential_regex
-      prev_token = @current_line.last_non_whitespace_token
-      
-      return tokenize_regex if prev_token.nil?
-      return tokenize_regex if prev_token.keyword?
-      return tokenize_regex if prev_token.operator?
-      return tokenize_divide if prev_token.literal?
-      
-      case prev_token.type
-      when :lparen, :lsquare, :lcurly, :hash_rocket
+
+      if @expr_state == :beg || @expr_state == :mid || @expr_state == :class
         return tokenize_regex
-      when :rparen, :rsquare, :rcurly
-        return tokenize_divide
-      when :question_mark, :equals, :semicolon
-        return tokenize_regex
-      when :instancevar, :classvar, :globalvar
-        return tokenize_divide
-      when :identifier
-        if can_tokenize_regex?
-          return tokenize_regex
-        else
-          return tokenize_divide
-        end
-      else
-        raise "You forgot #{prev_token.type}!"
       end
 
+      if peek_ahead_for(/=/)
+        return tokenize_divide_operators
+      end
 
+      if (@expr_state == :arg || @expr == :cmd_arg) && @line.last_token_is_space?
+        return tokenize_regex
+      end
 
-    end
-
-    def tokenize_divide
+      return tokenize_divide_operators
     end
 
     def tokenize_regex
-    end
-
-    def can_tokenize_regex
-      cp = @i
-
-      until @sf.source[cp] == '/'  ||
-            cp > length 
-      end
-        
+      advance # Consume the leading /
+      while true
+        if cchar == '/'
+          advance
+          # Capture the regex option
+          advance if cchar =~ /i|o|m|x|n|e|u|s/
+          return capture_token(:regex)
+        end
+        if cchar == nil #end of file
+          raise "Unclosed Regex found"
+        end
+        advance if cchar == '\\'
+        advance
       end
     end
   end

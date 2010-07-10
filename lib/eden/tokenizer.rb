@@ -2,6 +2,7 @@ require 'eden/tokenizers/basic_tokenizer'
 require 'eden/tokenizers/delimited_literal_tokenizer'
 require 'eden/tokenizers/number_tokenizer'
 require 'eden/tokenizers/operator_tokenizer'
+require 'eden/tokenizers/regex_tokenizer'
 require 'eden/tokenizers/string_tokenizer'
 
 
@@ -11,8 +12,9 @@ module Eden
     include DelimitedLiteralTokenizer
     include NumberTokenizer
     include OperatorTokenizer
+    include RegexTokenizer
     include StringTokenizer
-
+    
     def initialize( source_file )
       @sf = source_file
       @interpolating = [] # Stack for state when interpolating into strings
@@ -26,6 +28,7 @@ module Eden
       @thunk_end = -1 # Start/end of the current token
       @current_line = Line.new( @ln )
       @length = @sf.source.length
+      @expr_state = :beg # Same as lex_state variable in parse.c in Ruby source
       default_state_transitions!
 
       until( @i >= @length )
@@ -36,6 +39,7 @@ module Eden
           @sf.lines << @current_line
           @ln += 1
           @current_line = Line.new( @ln )
+          @expr_state = :beg
         when :whitespace
           @current_line.tokens << tokenize_whitespace
         when :identifier # keyword / name / etc
@@ -48,12 +52,21 @@ module Eden
           @current_line.tokens << tokenize_globalvar
         when :delimited_literal, :delimited_string_literal
           @current_line.tokens << tokenize_delimited_literal
-        when :lparen, :rparen, :lsquare, :rsquare,
-          :lcurly, :comma
+        when :lparen, :lsquare, :lcurly
+          @expr_state = :beg
+          @current_line.tokens << tokenize_single_character
+        when :comma
+          @expr_state = :beg
+          @current_line.tokens << tokenize_single_character
+        when :rsquare, :lcurly, :rparen
+          @expr_state = :end
           @current_line.tokens << tokenize_single_character
         when :rcurly
           @current_line.tokens << tokenize_rcurly
-        when :tilde, :at, :question_mark, :semicolon
+        when :tilde
+          default_expr_state_transition!
+          @current_line.tokens << tokenize_single_character
+        when :at, :question_mark, :semicolon
           @current_line.tokens << tokenize_single_character
         when :colon
           @current_line.tokens << tokenize_colon
@@ -68,7 +81,7 @@ module Eden
         when :multiply
           @current_line.tokens << tokenize_multiply_operators
         when :divide
-          @current_line.tokens << tokenize_divide_operators
+          @current_line.tokens << tokenize_potential_regex
         when :lt
           @current_line.tokens << tokenize_lt_operators
         when :gt
@@ -167,6 +180,7 @@ module Eden
       when 'a'..'z', 'A'..'Z', '_'
         @state = :identifier
       when '0'
+        @expr_state = :end
         if peek_ahead_for(/[xX]/)
           @state = :hex_literal 
         elsif peek_ahead_for(/[bB]/)

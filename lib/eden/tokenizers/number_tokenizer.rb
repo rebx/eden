@@ -3,6 +3,7 @@ module Eden
 
     # Tokenize a non-decimal integer literal - e.g. Ox4F2E, 0b1101
     def tokenize_integer_literal
+      @expr_state = :end
       if peek_ahead_for(/[_oObBxX]/)
         advance(2) # Pass 0x / 0b / 0O
       else
@@ -16,6 +17,7 @@ module Eden
     end
 
     def tokenize_decimal_literal
+      @expr_state = :end
       # Handle a lone zero
       if cchar == '0' && !peek_ahead_for(/[dD]/)
         advance

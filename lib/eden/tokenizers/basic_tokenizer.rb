@@ -59,6 +59,7 @@ module Eden
     end
 
     def tokenize_identifier
+      @expr_state = :end
       advance until( /[A-Za-z0-9_]/.match( cchar ).nil? )
       translate_keyword_tokens(capture_token( @state ))
     end
@@ -74,18 +75,21 @@ module Eden
     end
 
     def tokenize_instancevar
+      @expr_state = :end
       advance # Pass the @ symbol
       advance until( /[a-z0-9_]/.match( cchar ).nil? )
       capture_token( :instancevar )
     end
 
     def tokenize_classvar
+      @expr_state = :end
       advance(2) # Pass the @@ symbol
       advance until( /[a-z0-9_]/.match( cchar ).nil? )
       capture_token( :classvar )
     end
 
     def tokenize_symbol
+      @expr_state = :end
       advance # Pass the :
       case cchar
       when '"'  then return tokenize_double_quote_string
@@ -96,6 +100,7 @@ module Eden
     end
 
     def tokenize_globalvar
+      @expr_state = :end
       advance # Pass the $
       if /[!@_\.&~0-9=\/\\\*$\?:]/.match( cchar )
         advance and capture_token( :globalvar )
@@ -121,13 +126,22 @@ module Eden
                   "when", "while", "yield"]
       if keywords.include?( token.content )
         token.type = token.content.downcase.to_sym
+        # Change the state if we match a keyword
+        @expr_state = :beg
       end
       
-      # A couple of exceptions
-      token.type = :begin_global if token.content == "BEGIN"
-      token.type = :end_global if token.content == "END"
+      # A couple of exceptions      
+      if token.content == "BEGIN"
+        token.type = :begin_global 
+        @expr_state = :beg
+      end
 
-      return token
+      if token.content == "END"
+        token.type = :end_global 
+        @expr_state = :beg
+      end
+      
+      token
     end
   end
 end

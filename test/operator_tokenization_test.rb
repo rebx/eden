@@ -64,12 +64,19 @@ class OperatorTokenizationTest < Test::Unit::TestCase
   end
 
   def test_divide_tokenization
-    @sf.stubs(:source).returns("/ /=")
+    @sf.stubs(:source).returns("rah / gah")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 3, tokens.size
-    assert_equal :divide, tokens[0].type
-    assert_equal "/", tokens[0].content
+    assert_equal 5, tokens.size
+    assert_equal :divide, tokens[2].type
+    assert_equal "/", tokens[2].content
+  end
+  
+  def test_divide_equals_tokenization
+    @sf.stubs(:source).returns("rah /= gah")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal tokens.size, 5
     assert_equal :divide_equals, tokens[2].type
     assert_equal "/=", tokens[2].content
   end

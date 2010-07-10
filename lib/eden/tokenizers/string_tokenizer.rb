@@ -10,6 +10,7 @@ module Eden
         end
       end
       advance # Pass the closing quote
+      @expr_state = :end
       capture_token( @state )
     end
 
@@ -17,6 +18,7 @@ module Eden
       advance # Pass the opening backquote
       advance until( cchar == '`' || @i >= @length )
       advance # Pass the closing backquote
+      @expr_state = :end
       capture_token( :backquote_string )
     end
 
@@ -49,6 +51,7 @@ module Eden
         end
       end
       advance # Pass the closing double-quote
+      @expr_state = :end
       tokens << capture_token( @state )
       return tokens
     end
