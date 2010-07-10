@@ -198,7 +198,7 @@ module Eden
         @state = :dec_literal
       when '+', '-'
         if peek_ahead_for( /[0-9]/ )
-          @state = :number
+          @state = :dec_literal
         else
           @state = ( cchar == '+' ? :plus : :minus )
         end

@@ -18,6 +18,9 @@ module Eden
 
     def tokenize_decimal_literal
       @expr_state = :end
+      # Capture the sign
+      advance if cchar == '+' || cchar == '-'
+
       # Handle a lone zero
       if cchar == '0' && !peek_ahead_for(/[dD]/)
         advance

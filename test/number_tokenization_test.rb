@@ -33,6 +33,17 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal :hex_literal, line.tokens[6].type
   end
 
+  def test_signed_tokenization
+    @sf.stubs(:source).returns("-10 +4")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 3, tokens.size
+    assert_equal "-10", tokens[0].content
+    assert_equal :dec_literal, tokens[0].type
+    assert_equal "+4", tokens[2].content
+    assert_equal :dec_literal, tokens[2].type
+  end
+
   def test_decimal_tokenisation
     @sf.stubs(:source).returns("123 9123 0d1987")
     @sf.tokenize!
