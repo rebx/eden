@@ -9,6 +9,19 @@ module Eden
       return token
     end
 
+    def tokenize_period
+      advance
+      if cchar == '.'
+        advance
+        @expr_state = :beg
+        return (advance and capture_token( :range_inc )) if cchar == '.'
+        capture_token( :range_exc )
+      else
+        @expr_state = :dot
+        capture_token( :period )
+      end
+    end
+    
     def tokenize_rcurly
       @thunk_end += 1
       old_state = @interpolating.delete_at(-1)

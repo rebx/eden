@@ -58,4 +58,17 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
     assert_equal :minus, line.tokens[24].type    
   end
 
+  def test_period_tokenization
+    @sf.stubs(:source).returns("... .. .")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal "...", tokens[0].content
+    assert_equal :range_inc, tokens[0].type    
+    assert_equal "..", tokens[2].content
+    assert_equal :range_exc, tokens[2].type    
+    assert_equal ".", tokens[4].content
+    assert_equal :period, tokens[4].type    
+  end
+
 end
