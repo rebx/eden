@@ -134,9 +134,7 @@ module Eden
       if token.content == "BEGIN"
         token.type = :begin_global 
         @expr_state = :beg
-      end
-
-      if token.content == "END"
+      elsif token.content == "END"
         token.type = :end_global 
         @expr_state = :beg
       end
