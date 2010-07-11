@@ -16,5 +16,9 @@ module Eden
       tokenizer = Tokenizer.new( self )
       tokenizer.tokenize!
     end
+
+    def each_line
+      @lines.each { |l| yield l }
+    end
   end
 end

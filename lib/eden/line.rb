@@ -16,5 +16,9 @@ module Eden
     def last_token_is_space?
       @tokens[-1].type == :whitespace
     end
+
+    def joined_tokens
+      tokens.map { |t| t.content }.join('')
+    end
   end
 end
