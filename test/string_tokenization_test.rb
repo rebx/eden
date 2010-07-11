@@ -72,6 +72,17 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal 'str"', tokens[6].content
   end
 
+  def test_string_interpolation_at_end
+    @sf.stubs(:source).returns('"str#{ @inst }"\n')
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 8, tokens.size
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal '"str#', tokens[0].content
+    assert_equal :double_q_string, tokens[6].type
+    assert_equal '"', tokens[6].content
+  end
+  
   def test_delimited_backquote_string_tokenization
     @sf.stubs(:source).returns("%x{rah --e}")
     @sf.tokenize!

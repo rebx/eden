@@ -22,9 +22,9 @@ module Eden
       capture_token( :backquote_string )
     end
 
-    def tokenize_double_quote_string
+    def tokenize_double_quote_string( in_string_already = false )
       tokens = []
-      advance # Pass the opening backquote
+      advance unless in_string_already # Pass the opening backquote
       until( cchar == '"' || @i >= @length )
         if cchar == '\\'
           advance(2) # Pass the escaped character

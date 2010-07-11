@@ -31,7 +31,7 @@ module Eden
         @i += 1
         reset_thunk!
         @state = old_state
-        tokens << tokenize_double_quote_string
+        tokens << tokenize_double_quote_string(true)
       else
         tokens << Token.new(@state, thunk)
         @i += 1
