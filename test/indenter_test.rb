@@ -126,6 +126,9 @@ class IndenterTest < Test::Unit::TestCase
     assert_equal "end\n", @sf.lines[6].joined_tokens
   end
 
+  # Control Flow Statements
+  #-----------------------------------------------------------------------------
+
   def test_should_indent_if_else_block
     @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /, ''))
       if @something
@@ -170,6 +173,13 @@ SOURCE
     assert_equal "end\n", @sf.lines[7].joined_tokens
   end
 
+  def test_should_not_indent_suffix_conditional
+    @sf.stubs(:source)
+  end
+
+  # Loop Statements
+  #-----------------------------------------------------------------------------
+
   def test_should_indent_while_statement
     @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /, ''))
       while @something
@@ -182,4 +192,44 @@ SOURCE
     assert_equal "  do_something\n", @sf.lines[1].joined_tokens
     assert_equal "end\n", @sf.lines[2].joined_tokens
   end
+
+  def test_should_indent_while_statement_with_optional_do
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /, ''))
+      while @something do
+      do_something
+      end
+SOURCE
+    @sf.tokenize!
+    Indenter.format( @sf )
+    assert_equal "while @something do\n", @sf.lines[0].joined_tokens
+    assert_equal "  do_something\n", @sf.lines[1].joined_tokens
+    assert_equal "end\n", @sf.lines[2].joined_tokens
+  end
+
+  def test_should_indent_until_statement
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /, ''))
+      until @something
+      do_something
+      end
+SOURCE
+    @sf.tokenize!
+    Indenter.format( @sf )
+    assert_equal "until @something\n", @sf.lines[0].joined_tokens
+    assert_equal "  do_something\n", @sf.lines[1].joined_tokens
+    assert_equal "end\n", @sf.lines[2].joined_tokens
+  end
+
+  def test_should_indent_until_statement_with_optional_do
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /, ''))
+      until @something do
+      do_something
+      end
+SOURCE
+    @sf.tokenize!
+    Indenter.format( @sf )
+    assert_equal "until @something do\n", @sf.lines[0].joined_tokens
+    assert_equal "  do_something\n", @sf.lines[1].joined_tokens
+    assert_equal "end\n", @sf.lines[2].joined_tokens
+  end
+
 end
