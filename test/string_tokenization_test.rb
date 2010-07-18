@@ -92,4 +92,81 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal "%x{rah --e}", tokens[0].content
   end
 
+  def test_heredoc_tokenization
+    @sf.stubs(:source).returns("str = <<HEREDOC\nLorem Ipsum\nHEREDOC\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<HEREDOC", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "Lorem Ipsum\nHEREDOC", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
+
+  def test_heredoc_tokenization_2
+    @sf.stubs(:source).returns("str = <<-HEREDOC\nLorem Ipsum\nHEREDOC\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<-HEREDOC", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "Lorem Ipsum\nHEREDOC", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
+
+  def test_heredoc_tokenization_empty_heredoc
+    @sf.stubs(:source).returns("str = <<-HEREDOC\nHEREDOC\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<-HEREDOC", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "HEREDOC", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
+  
+  def test_heredoc_tokeniztion_with_single_quote_delimiter
+    @sf.stubs(:source).returns("str = <<'HERE DOC'\nLorem Ipsum\n'HERE DOC'\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<'HERE DOC'", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "Lorem Ipsum\n'HERE DOC'", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
+
+  def test_heredoc_tokeniztion_with_double_quote_delimiter
+    @sf.stubs(:source).returns("str = <<\"HERE DOC\"\nLorem Ipsum\n\"HERE DOC\"\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<\"HERE DOC\"", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "Lorem Ipsum\n\"HERE DOC\"", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
+
+  def test_heredoc_tokeniztion_with_backquote_delimiter
+    @sf.stubs(:source).returns("str = <<`HERE DOC`\nLorem Ipsum\n`HERE DOC`\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_equal "<<`HERE DOC`", tokens[4].content
+    tokens = @sf.lines[1].tokens
+    assert_equal :heredoc_body, tokens[0].type
+    assert_equal "Lorem Ipsum\n`HERE DOC`", tokens[0].content
+    assert_equal :newline, tokens[1].type
+  end
 end

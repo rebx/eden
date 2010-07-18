@@ -40,6 +40,9 @@ module Eden
           @ln += 1
           @current_line = Line.new( @ln )
           @expr_state = :beg
+          if @heredoc_delimiter
+            @current_line.tokens << tokenize_heredoc_body
+          end
         when :whitespace
           @current_line.tokens << tokenize_whitespace
         when :identifier # keyword / name / etc
@@ -110,7 +113,6 @@ module Eden
           @current_line.tokens << tokenize_decimal_literal
         when :bin_literal, :oct_literal, :hex_literal
           @current_line.tokens << tokenize_integer_literal
-        when :regex
         end
       end
       @sf.lines << @current_line.flatten!

@@ -15,9 +15,9 @@ module Eden
     end
 
     def tokenize_backquote_string
-      advance # Pass the opening backquote
-      advance until( cchar == '`' || @i >= @length )
-      advance # Pass the closing backquote
+      advance
+      advance until cchar == '`' || @i >= @length
+      advance
       @expr_state = :end
       capture_token( :backquote_string )
     end
@@ -54,6 +54,43 @@ module Eden
       @expr_state = :end
       tokens << capture_token( @state )
       return tokens
+    end
+  
+    # Called from tokenize_lt_operators when it identifies that 
+    # << is a heredoc delimiter. Expects that '<<' will already
+    # be included in the current thunk.
+    def tokenize_heredoc_delimiter
+      offset = 2
+      if cchar == '-'
+        advance
+        offset = 3
+      end
+
+      if cchar =~ /[A-Za-z_]/
+        advance
+        advance until /[A-Za-z0-9_]/.match( cchar ).nil?
+      elsif /['"`]/.match(cchar)
+        advance_through_quoted_delimiter(cchar)
+      else
+        return nil
+      end
+      @heredoc_delimiter = thunk[offset..-1]
+      capture_token( :heredoc_delimiter )
+    end
+
+    def advance_through_quoted_delimiter( delimiter )
+      advance
+      advance until cchar == delimiter
+      advance
+    end
+
+    def tokenize_heredoc_body
+      if @heredoc_delimiter
+        advance until @sf.source[@i, @heredoc_delimiter.length] == @heredoc_delimiter || @i >= @length
+      end
+      @heredoc_delimiter.length.times { advance }
+      @heredoc_delimiter = nil
+      capture_token( :heredoc_body )
     end
   end
 end

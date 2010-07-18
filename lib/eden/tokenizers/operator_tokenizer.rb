@@ -103,6 +103,12 @@ module Eden
       case cchar
       when '<'
         advance
+
+        if ![:end, :dot, :end_arg, :class].include?(@expr_state) && cchar != ' '
+          token = tokenize_heredoc_delimiter
+          return token if token
+        end
+
         if cchar == '='
           @expr_state = :beg
           advance and capture_token(:left_shift_equals)
