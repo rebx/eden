@@ -1,5 +1,3 @@
-require 'ruby-debug'
-
 class WhiteSpaceCleaner < Eden::Formatter
   def self.format( source_file )
     return unless options[:remove_trailing_whitespace]
