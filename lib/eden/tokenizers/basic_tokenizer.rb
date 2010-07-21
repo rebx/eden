@@ -95,6 +95,10 @@ module Eden
       when '"'  then return tokenize_double_quote_string
       when '\'' then return tokenize_single_quote_string
       end
+      if /^(\^|&|\||<=>|==|===|!~|=~|>>|>=|<<|<=|>|<|\+|\-|\*\*|\/|%|\*|~|\+@|-@|\[\]|\[\]=)/x.match(@sf.source[@i..-1])
+        advance($1.length)
+        return capture_token(:symbol)
+      end
       advance while( /[A-Za-z0-9_!=\?]/.match(cchar) )
       capture_token( :symbol )
     end

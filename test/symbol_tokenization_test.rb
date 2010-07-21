@@ -6,16 +6,31 @@ class SumbolTokenizationTest < Test::Unit::TestCase
   end
 
   def test_simple_symbol_tokenisation
-    @sf.stubs(:source).returns(":test :< :_rah")
+    @sf.stubs(:source).returns(":test :test12 :_rah")
     @sf.tokenize!
     line = @sf.lines[0]
     assert_equal 5, line.tokens.size
     assert_equal ":test", line.tokens[0].content
     assert_equal :symbol, line.tokens[0].type
-    assert_equal ":<", line.tokens[2].content
+    assert_equal ":test12", line.tokens[2].content
     assert_equal :symbol, line.tokens[2].type
     assert_equal ":_rah", line.tokens[4].content
     assert_equal :symbol, line.tokens[4].type
+  end
+
+  def test_operator_symbol_tokenization
+    @sf.stubs(:source).returns(":% :< :/ :<<")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 7, tokens.size
+    assert_equal ":%", tokens[0].content
+    assert_equal :symbol, tokens[0].type
+    assert_equal ":<", tokens[2].content
+    assert_equal :symbol, tokens[2].type
+    assert_equal ":/", tokens[4].content
+    assert_equal :symbol, tokens[4].type
+    assert_equal ":<<", tokens[6].content
+    assert_equal :symbol, tokens[6].type
   end
 
   def test_dynamic_symbol_tokenisation
