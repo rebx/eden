@@ -10,13 +10,10 @@ module Eden
 
       advance # Pass the literal-type identifier
 
-      if( /[\{\(\[\<]/.match( cchar ) )
+      if( /[^A-Za-z0-9_ ]/.match( cchar ) )
         matched_delimiter = true
         start_delimiter = cchar
         end_delimiter = find_matching_delimiter( cchar )
-      elsif( /[^A-Za-z0-9_ ]/.match(cchar) )
-        matched_delimiter = false
-        end_delimiter = cchar
       else
         raise "Invalid delimiter character"
       end
@@ -28,7 +25,12 @@ module Eden
           delimiter_depth += 1 if cchar == start_delimiter
           delimiter_depth -= 1 if cchar == end_delimiter
         end
-        advance
+
+        if cchar == '\\'
+          advance(2)
+        else
+          advance
+        end
       end
       
       if( @i < @length )
@@ -60,7 +62,7 @@ module Eden
       when '[' then ']'
       when '<' then '>'
       else
-        raise "Non matching delimiter"
+        start_delimiter
       end
     end
   end

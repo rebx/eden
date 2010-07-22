@@ -49,4 +49,13 @@ class RegexTokenizationTest < Test::Unit::TestCase
     assert_equal "/test/i", tokens[0].content
     assert_equal :regex, tokens[0].type
   end
+
+  def test_regex_tokenization_with_funky_regexes
+    @sf.stubs(:source).returns(%q{%r!\[ *(?:(@)([\w\(\)-]+)|([\w\(\)-]+\(\))) *([~\!\|\*$\^=]*) *'?"?([^'"]*)'?"? *\]!i})
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal :regex, tokens[0].type
+    assert_equal %q{%r!\[ *(?:(@)([\w\(\)-]+)|([\w\(\)-]+\(\))) *([~\!\|\*$\^=]*) *'?"?([^'"]*)'?"? *\]!i}, tokens[0].content
+  end
 end
