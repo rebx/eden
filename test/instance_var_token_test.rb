@@ -18,11 +18,12 @@ class IdentifierTokenTest < Test::Unit::TestCase
     assert_equal :instancevar, line.tokens[4].type
   end
 
+  # $' used as a global by Hprictot 0.6.164:lib/elements.rb[274]
   def test_global_var_tokenization
-    @sf.stubs(:source).returns("$: $? $foo $1")
+    @sf.stubs(:source).returns("$: $? $foo $1 $'")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 7, tokens.size
+    assert_equal 9, tokens.size
     assert_equal "$:", tokens[0].content
     assert_equal :globalvar, tokens[0].type
     assert_equal "$?", tokens[2].content
@@ -31,6 +32,17 @@ class IdentifierTokenTest < Test::Unit::TestCase
     assert_equal :globalvar, tokens[4].type
     assert_equal "$1", tokens[6].content
     assert_equal :globalvar, tokens[6].type
+    assert_equal "$'", tokens[8].content
+    assert_equal :globalvar, tokens[8].type
   end
 
+  # $` used as a global by Hprictot 0.6.164:lib/builder.rb[199]
+  def test_global_var_tokenization_2
+    @sf.stubs(:source).returns("$`")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal "$`", tokens[0].content
+    assert_equal :globalvar, tokens[0].type
+  end
 end

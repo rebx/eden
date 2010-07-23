@@ -106,7 +106,7 @@ module Eden
     def tokenize_globalvar
       @expr_state = :end
       advance # Pass the $
-      if /[!@_\.&~0-9=\/\\\*$\?:]/.match( cchar )
+      if /[!@_\.&~0-9=\/\\\*$\?:'`]/.match( cchar )
         advance and capture_token( :globalvar )
       elsif /[A-Za-z0-9_]/.match( cchar )
         advance while /[A-Za-z0-9_]/.match( cchar )
