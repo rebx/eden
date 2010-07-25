@@ -82,6 +82,36 @@ class NumberTokenizationTest < Test::Unit::TestCase
     assert_equal :double_q_string, tokens[6].type
     assert_equal '"', tokens[6].content
   end
+
+  def test_string_interpolation_with_class_instance_vars
+    @sf.stubs(:source).returns('"str#@inst moar #@@var"\n')
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal '"str#', tokens[0].content
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal '@inst', tokens[1].content
+    assert_equal :instancevar, tokens[1].type
+    assert_equal ' moar #', tokens[2].content
+    assert_equal :double_q_string, tokens[2].type
+    assert_equal '@@var', tokens[3].content
+    assert_equal :classvar, tokens[3].type
+    assert_equal '"', tokens[4].content
+    assert_equal :double_q_string, tokens[4].type
+  end
+
+  def test_string_interpolation_with_global_vars
+    @sf.stubs(:source).returns('"str#$1"\n')
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 4, tokens.size
+    assert_equal '"str#', tokens[0].content
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal '$1', tokens[1].content
+    assert_equal :globalvar, tokens[1].type
+    assert_equal '"', tokens[2].content
+    assert_equal :double_q_string, tokens[2].type
+  end
   
   def test_delimited_backquote_string_tokenization
     @sf.stubs(:source).returns("%x{rah --e}")

@@ -23,6 +23,7 @@ module Eden
     end
 
     def tokenize_double_quote_string( in_string_already = false )
+      saved_state = @state
       tokens = []
       advance unless in_string_already # Pass the opening backquote
       until( cchar == '"' || @i >= @length )
@@ -41,10 +42,15 @@ module Eden
           when '@'
             tokens << capture_token( @state )
             if peek_ahead_for('@')
-              tokens << tokenize_class_var
+              tokens << tokenize_classvar
             else
-              tokens << tokenize_instance_var
+              tokens << tokenize_instancevar
             end
+            @state = saved_state
+          when '$'
+            tokens << capture_token( @state )
+            tokens << tokenize_globalvar
+            @state = saved_state
           end
         else
           advance
