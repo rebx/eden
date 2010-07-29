@@ -20,7 +20,7 @@ class Indenter < Eden::Formatter
         end
       end
 
-      if t.type == :when
+      if t.is?( :when )
         decrease_indent!
       end
     end
@@ -32,18 +32,18 @@ class Indenter < Eden::Formatter
       if [:class, :def, :module, :do, :begin, :rescue, :if, :else, :elsif, :case].include?(t.type)
         increase_indent!
         line.tokens.each do |tok|
-          decrease_indent! if[:end].include?(tok.type)
+          decrease_indent! if tok.is?( :end )
         end
       end
 
       if [:for, :until, :while].include?(t.type)
         increase_indent!
         line.tokens.each do |tok|
-          decrease_indent! if [:do].include?(tok.type)
+          decrease_indent! if tok.is?( :do )
         end
       end
 
-      if t.type == :when
+      if t.is?(:when)
         increase_indent!
       end
     end
@@ -54,7 +54,7 @@ class Indenter < Eden::Formatter
     if @current_indent == 0
       line.tokens.delete_at(0) if line.tokens[0].type == :whitespace
     else
-      if line.tokens[0].type == :whitespace
+      if line.tokens[0].is?( :whitespace )
         line.tokens[0].content = indent_content
       else
         indent_token = Eden::Token.new( :whitespace, indent_content )

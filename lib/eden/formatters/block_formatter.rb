@@ -18,20 +18,20 @@ class BlockFormatter < Eden::Formatter
     
     source_file.each_line do |line|
       line.tokens.each do |token|
-        if token.type == :lcurly
+        if token.is?( :lcurly )
           next_token = line.next_token( token )
           if next_token && next_token.content != space
-            if next_token.type == :whitespace
+            if next_token.is?(:whitespace)
               next_token.content == space
             else
               new_space_token = Eden::Token.new(:whitespace, space)
               line.insert_token_after(token, new_space_token)
             end
           end
-        elsif token.type == :rcurly
+        elsif token.is?( :rcurly )
           prev_token = line.previous_token( token )
           if prev_token && prev_token.content != space
-            if prev_token.type == :whitespace
+            if prev_token.is?( :whitespace )
               prev_token.content == space
             else
               new_space_token = Eden::Token.new(:whitespace, space)

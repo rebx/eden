@@ -54,5 +54,9 @@ module Eden
     def keyword?
       KEYWORDS.include?( type )
     end
+
+    def is?( token_type )
+      @type == token_type
+    end
   end
 end
