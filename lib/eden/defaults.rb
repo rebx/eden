@@ -13,3 +13,14 @@ Indenter.configure do |i|
   # How many of the indent_character should be used at each level of indent
   i.indent_characters_per_step 2
 end
+
+BlockFormatter.configure do |b|
+  # Modify block spacing at all?
+  b.adjust_blocks true
+
+  # What charater to pad blocks with?
+  b.padding_character " "
+
+  # How many padding characters to use at each end of the inline block?
+  b.padding_character_count 1
+end

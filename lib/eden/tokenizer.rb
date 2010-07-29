@@ -36,6 +36,7 @@ module Eden
         when :newline
           advance
           @current_line.tokens << capture_token( :newline )
+          @current_line.tokens.flatten!
           @sf.lines << @current_line
           @ln += 1
           @current_line = Line.new( @ln )
