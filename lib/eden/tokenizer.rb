@@ -70,7 +70,7 @@ module Eden
         when :tilde
           default_expr_state_transition!
           @current_line.tokens << tokenize_single_character
-        when :at, :question_mark, :semicolon
+        when :at, :question_mark, :semicolon, :backslash
           @current_line.tokens << tokenize_single_character
         when :colon
           @current_line.tokens << tokenize_colon
@@ -157,6 +157,7 @@ module Eden
       when '?'  then @state = :question_mark
       when ';'  then @state = :semicolon
       when '='  then @state = :equals
+      when '\\'  then @state = :backslash
       when '%'
         if peek_ahead_for(/[qQrswWx]/)
           @state = :delimited_literal

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + "/test_helper.rb"
 
-class NumberTokenizationTest < Test::Unit::TestCase
+class StringTokenizationTest < Test::Unit::TestCase
   def setup
     @sf = Eden::SourceFile.new( "dummy.rb" )
   end
@@ -56,7 +56,7 @@ class NumberTokenizationTest < Test::Unit::TestCase
   end
 
   def test_double_quote_string_interpolation
-    @sf.stubs(:source).returns('"str#{ @inst }str"')
+    @sf.stubs(:source).returns("\"str\#{ @inst }str\"")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 7, tokens.size
@@ -73,7 +73,7 @@ class NumberTokenizationTest < Test::Unit::TestCase
   end
 
   def test_string_interpolation_at_end
-    @sf.stubs(:source).returns('"str#{ @inst }"\n')
+    @sf.stubs(:source).returns("\"str\#{ @inst }\"\n")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 8, tokens.size
@@ -84,7 +84,7 @@ class NumberTokenizationTest < Test::Unit::TestCase
   end
 
   def test_string_interpolation_with_class_instance_vars
-    @sf.stubs(:source).returns('"str#@inst moar #@@var"\n')
+    @sf.stubs(:source).returns("\"str\#@inst moar \#@@var\"\n")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
@@ -101,7 +101,7 @@ class NumberTokenizationTest < Test::Unit::TestCase
   end
 
   def test_string_interpolation_with_global_vars
-    @sf.stubs(:source).returns('"str#$1"\n')
+    @sf.stubs(:source).returns("\"str\#$1\"\n")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 4, tokens.size
