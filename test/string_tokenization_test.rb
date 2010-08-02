@@ -55,6 +55,17 @@ class StringTokenizationTest < Test::Unit::TestCase
     assert_equal '"test\\\\test"', tokens[2].content
   end
 
+  def test_quoted_expanded_literal_string_tokenization
+    @sf.stubs(:source).returns("%(test) %Q(test)")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 3, tokens.size
+    assert_equal "%(test)", tokens[0].content
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal "%Q(test)", tokens[2].content
+    assert_equal :double_q_string, tokens[2].type
+  end
+
   def test_double_quote_string_interpolation
     @sf.stubs(:source).returns("\"str\#{ @inst }str\"")
     @sf.tokenize!

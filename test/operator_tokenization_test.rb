@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + "/test_helper.rb"
 
 class OperatorTokenizationTest < Test::Unit::TestCase
-  def setup
+ def setup
     @sf = Eden::SourceFile.new( "dummy.rb" )
   end
 
@@ -155,14 +155,14 @@ class OperatorTokenizationTest < Test::Unit::TestCase
   end
 
   def test_modulo_tokenization
-    @sf.stubs(:source).returns("% %=")
+    @sf.stubs(:source).returns("% a %=")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 3, tokens.size
+    assert_equal 5, tokens.size
     assert_equal :modulo, tokens[0].type
     assert_equal "%", tokens[0].content
-    assert_equal :modulo_equals, tokens[2].type
-    assert_equal "%=", tokens[2].content
+    assert_equal :modulo_equals, tokens[4].type
+    assert_equal "%=", tokens[4].content
   end
 
   def test_bang_tokenization

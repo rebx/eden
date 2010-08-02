@@ -54,7 +54,7 @@ module Eden
           @current_line.tokens << tokenize_classvar
         when :globalvar
           @current_line.tokens << tokenize_globalvar
-        when :delimited_literal, :delimited_string_literal
+        when :delimited_literal
           @current_line.tokens << tokenize_delimited_literal
         when :lparen, :lsquare, :lcurly
           @expr_state = :beg
@@ -159,10 +159,8 @@ module Eden
       when '='  then @state = :equals
       when '\\'  then @state = :backslash
       when '%'
-        if peek_ahead_for(/[qQrswWx]/)
+        if @expr_state == :beg && !peek_ahead_for(/ /)
           @state = :delimited_literal
-        elsif peek_ahead_for(/[^=A-Za-z0-9_ ]/)
-          @state = :delimited_string_literal
         else
           @state = :modulo
         end

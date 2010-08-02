@@ -6,17 +6,19 @@ module Eden
       delimiter_depth = 0
 
       advance # Pass the %
-      @state = infer_delimited_literal_type
 
-      advance # Pass the literal-type identifier
-
-      if( /[^A-Za-z0-9_ ]/.match( cchar ) )
-        matched_delimiter = true
-        start_delimiter = cchar
-        end_delimiter = find_matching_delimiter( cchar )
+      if( /[^A-Za-z0-9]/.match( cchar ) )
+        @state = :double_q_string
+      elsif( /[qQswWrx]/.match( cchar) )
+        @state = infer_delimited_literal_type  
+        advance
       else
         raise "Invalid delimiter character"
       end
+
+      start_delimiter = cchar
+      end_delimiter = find_matching_delimiter( cchar )
+      matched_delimiter = is_matched_delimiter?( cchar )
 
       advance # past the delimiter
       
@@ -49,7 +51,8 @@ module Eden
       case cchar
         when 's' then :symbol
         when 'w', 'W' then :array_literal
-        when 'q', 'Q' then :single_q_string
+        when 'q' then :single_q_string
+        when 'Q' then :double_q_string
         when 'r' then :regex
         when 'x' then :backquote_string
       end
@@ -64,6 +67,10 @@ module Eden
       else
         start_delimiter
       end
+    end
+
+    def is_matched_delimiter?( cchar )
+      !! /[{\(\[<]/.match(cchar)
     end
   end
 end

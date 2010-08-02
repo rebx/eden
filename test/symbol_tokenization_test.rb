@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + "/test_helper.rb"
 
-class SumbolTokenizationTest < Test::Unit::TestCase
+class SymbolTokenizationTest < Test::Unit::TestCase
   def setup
     @sf = Eden::SourceFile.new( "dummy.rb" )
   end
