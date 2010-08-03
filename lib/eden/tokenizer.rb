@@ -35,12 +35,13 @@ module Eden
         case( @state )
         when :newline
           advance
+          @expr_state = :beg
           @current_line.tokens << capture_token( :newline )
           @current_line.tokens.flatten!
           @sf.lines << @current_line
           @ln += 1
           @current_line = Line.new( @ln )
-          @expr_state = :beg
+
           if @heredoc_delimiter
             @current_line.tokens << tokenize_heredoc_body
           end

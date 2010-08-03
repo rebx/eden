@@ -6,14 +6,21 @@ class RegexTokenizationTest < Test::Unit::TestCase
   end
 
   def test_delimited_regex_tokenization
-    @sf.stubs(:source).returns("%r{[a-z]} %r{[a-z]}i")
+    @sf.stubs(:source).returns("%r{[a-z]}")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 3, tokens.size
+    assert_equal 1, tokens.size
     assert_equal :regex, tokens[0].type
     assert_equal "%r{[a-z]}", tokens[0].content
-    assert_equal :regex, tokens[2].type
-    assert_equal "%r{[a-z]}i", tokens[2].content
+  end
+
+  def test_delimited_regex_tokenization2
+    @sf.stubs(:source).returns("%r{[a-z]}i")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal :regex, tokens[0].type
+    assert_equal "%r{[a-z]}i", tokens[0].content
   end
 
   def test_regex_tokenization_at_line_start

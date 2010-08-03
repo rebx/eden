@@ -56,16 +56,41 @@ class StringTokenizationTest < Test::Unit::TestCase
   end
 
   def test_quoted_expanded_literal_string_tokenization
-    @sf.stubs(:source).returns("%(test) %Q(test)")
+    @sf.stubs(:source).returns("%(test)\n%Q(test)")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 3, tokens.size
+    assert_equal 2, tokens.size
     assert_equal "%(test)", tokens[0].content
     assert_equal :double_q_string, tokens[0].type
-    assert_equal "%Q(test)", tokens[2].content
-    assert_equal :double_q_string, tokens[2].type
+    tokens = @sf.lines[1].tokens
+    assert_equal "%Q(test)", tokens[0].content
+    assert_equal :double_q_string, tokens[0].type
   end
 
+  def test_should_expand_expanded_literal_strings
+    @sf.stubs(:source).returns("%Q(rah\#{@ivar}rah)")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal "%Q(rah\#", tokens[0].content
+    assert_equal :double_q_string, tokens[0].type
+    assert_equal :lcurly, tokens[1].type
+    assert_equal "@ivar", tokens[2].content
+    assert_equal :instancevar, tokens[2].type
+    assert_equal :rcurly, tokens[3].type
+    assert_equal "rah)", tokens[4].content
+    assert_equal :double_q_string, tokens[4].type
+  end
+
+  def test_should_not_expand_non_expanded_literal_strings
+    @sf.stubs(:source).returns("%q(rah\#{@ivar}rah)")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal "%q(rah\#{@ivar}rah)", tokens[0].content
+    assert_equal :single_q_string, tokens[0].type
+  end
+  
   def test_double_quote_string_interpolation
     @sf.stubs(:source).returns("\"str\#{ @inst }str\"")
     @sf.tokenize!
@@ -131,6 +156,21 @@ class StringTokenizationTest < Test::Unit::TestCase
     assert_equal 1, tokens.size
     assert_equal :backquote_string, tokens[0].type
     assert_equal "%x{rah --e}", tokens[0].content
+  end
+
+  def test_should_expand_backquote_string_delimited_literals
+    @sf.stubs(:source).returns("%x(rah\#{@rah})")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal "%x(rah\#", tokens[0].content
+    assert_equal :backquote_string, tokens[0].type
+    assert_equal :lcurly, tokens[1].type
+    assert_equal "@rah", tokens[2].content
+    assert_equal :instancevar, tokens[2].type
+    assert_equal :rcurly, tokens[3].type
+    assert_equal ")", tokens[4].content
+    assert_equal :backquote_string, tokens[4].type
   end
 
   def test_heredoc_tokenization

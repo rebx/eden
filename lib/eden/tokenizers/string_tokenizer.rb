@@ -1,8 +1,25 @@
 module Eden
   module StringTokenizer
     def tokenize_single_quote_string
-      advance # Pass the opening quote
-      until( cchar == '\'' || @i >= @length)
+      tokenize_non_expanded_string("'")
+    end
+
+    # If a block is given, it gets run after the final delimiter is detected. The
+    # primary purpose for this is to allow the capture of regex modifiers
+    def tokenize_non_expanded_string( start_delimiter, &block )
+      delimiter_depth = 0
+      matched_delimiter = is_matched_delimiter?( start_delimiter )
+      end_delimiter = find_matching_delimiter( start_delimiter )
+
+      advance # Pass the opening delimiter
+
+      until((cchar == end_delimiter && delimiter_depth == 0) || @i >= @length)
+
+        if matched_delimiter
+          delimiter_depth += 1 if cchar == start_delimiter
+          delimiter_depth -= 1 if cchar == end_delimiter
+        end
+
         if cchar == '\\'
           advance(2) # Pass the escaped character
         else
@@ -10,8 +27,26 @@ module Eden
         end
       end
       advance # Pass the closing quote
+
+      block.call if block_given?
+
       @expr_state = :end
       capture_token( @state )
+    end
+
+    def find_matching_delimiter( start_delimiter )
+      case start_delimiter
+      when '{' then '}'
+      when '(' then ')'
+      when '[' then ']'
+      when '<' then '>'
+      else
+        start_delimiter
+      end
+    end
+
+    def is_matched_delimiter?( cchar )
+      !! /[{\(\[<]/.match(cchar)
     end
 
     def tokenize_backquote_string
@@ -23,10 +58,15 @@ module Eden
     end
 
     def tokenize_double_quote_string( in_string_already = false )
+      tokenize_expanded_string('"', in_string_already)
+    end
+
+    def tokenize_expanded_string( start_delimiter, in_string_already = false, &block )
       saved_state = @state
       tokens = []
+      end_delimiter = find_matching_delimiter( start_delimiter )
       advance unless in_string_already # Pass the opening backquote
-      until( cchar == '"' || @i >= @length )
+      until( cchar == end_delimiter || @i >= @length )
         if cchar == '\\'
           advance(2) # Pass the escaped character
         elsif cchar == '#'
@@ -57,6 +97,7 @@ module Eden
         end
       end
       advance # Pass the closing double-quote
+      block.call if block_given?
       @expr_state = :end
       tokens << capture_token( @state )
       return tokens
