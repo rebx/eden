@@ -21,16 +21,34 @@ class StringTokenizationTest < Test::Unit::TestCase
   end
 
   def test_backquote_string_tokenisation
-    @sf.stubs(:source).returns("`exec` `exec \#\{\"cmd\"\}` `end")
+    @sf.stubs(:source).returns("`exec`")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal :backquote_string, tokens[0].type
+    assert_equal "`exec`", tokens[0].content
+  end
+
+  def test_backquote_string_interpolation
+    @sf.stubs(:source).returns("`exec \#\{\"cmd\"\}`")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal :backquote_string, tokens[0].type
-    assert_equal "`exec`", tokens[0].content
-    assert_equal :backquote_string, tokens[2].type
-    assert_equal "`exec \#\{\"cmd\"\}`", tokens[2].content
+    assert_equal "`exec \#", tokens[0].content
+    assert_equal :lcurly, tokens[1].type
+    assert_equal "\"cmd\"", tokens[2].content
+    assert_equal :rcurly, tokens[3].type
+    assert_equal "`", tokens[4].content
     assert_equal :backquote_string, tokens[4].type
-    assert_equal "`end", tokens[4].content
+  end
+
+  def test_should_tokenize_unterminated_backquote_string
+    @sf.stubs(:source).returns("`exec")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_equal :backquote_string, tokens[0].type
+    assert_equal "`exec", tokens[0].content
   end
 
   def test_double_quote_string_tokenisation

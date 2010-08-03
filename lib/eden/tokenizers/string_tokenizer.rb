@@ -34,27 +34,8 @@ module Eden
       capture_token( @state )
     end
 
-    def find_matching_delimiter( start_delimiter )
-      case start_delimiter
-      when '{' then '}'
-      when '(' then ')'
-      when '[' then ']'
-      when '<' then '>'
-      else
-        start_delimiter
-      end
-    end
-
-    def is_matched_delimiter?( cchar )
-      !! /[{\(\[<]/.match(cchar)
-    end
-
     def tokenize_backquote_string
-      advance
-      advance until cchar == '`' || @i >= @length
-      advance
-      @expr_state = :end
-      capture_token( :backquote_string )
+      tokenize_expanded_string( '`' )
     end
 
     def tokenize_double_quote_string( in_string_already = false )
@@ -125,12 +106,6 @@ module Eden
       capture_token( :heredoc_delimiter )
     end
 
-    def advance_through_quoted_delimiter( delimiter )
-      advance
-      advance until cchar == delimiter
-      advance
-    end
-
     def tokenize_heredoc_body
       if @heredoc_delimiter
         advance until @sf.source[@i, @heredoc_delimiter.length] == @heredoc_delimiter || @i >= @length
@@ -138,6 +113,29 @@ module Eden
       @heredoc_delimiter.length.times { advance }
       @heredoc_delimiter = nil
       capture_token( :heredoc_body )
+    end
+
+    private
+    # Returns the matching delimiter for the 4 "paired" delimiters
+    def find_matching_delimiter( start_delimiter )
+      case start_delimiter
+      when '{' then '}'
+      when '(' then ')'
+      when '[' then ']'
+      when '<' then '>'
+      else
+        start_delimiter
+      end
+    end
+
+    def is_matched_delimiter?( cchar )
+      !! /[{\(\[<]/.match(cchar)
+    end
+
+    def advance_through_quoted_delimiter( delimiter )
+      advance
+      advance until cchar == delimiter
+      advance
     end
   end
 end
