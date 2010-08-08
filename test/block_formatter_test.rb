@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + "/test_helper.rb"
+require File.dirname(__FILE__) + "/../lib/eden/formatters/block_formatter"
 
 class BlockFormatterTest < Test::Unit::TestCase
   def setup

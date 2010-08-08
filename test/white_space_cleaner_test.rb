@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + "/test_helper.rb"
+require File.dirname(__FILE__) + "/../lib/eden/formatters/white_space_cleaner.rb"
 
 class WhiteSpaceCleanerTest < Test::Unit::TestCase
   
