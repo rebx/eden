@@ -20,5 +20,13 @@ module Eden
     def each_line
       @lines.each { |l| yield l }
     end
+
+    def rewrite!
+      File.open(@file_name, 'w') do |f|
+        each_line do |l|
+          f.write l.joined_tokens
+        end
+      end
+    end
   end
 end

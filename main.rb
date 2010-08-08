@@ -3,6 +3,28 @@ $:.unshift(File.dirname(__FILE__) + "/lib")
 require 'optparse'
 require 'eden'
 
+# Automatically load all the formatters
+formatters = []
+
+# Taken from ActiveSupport
+def camelize(lower_case_and_underscored_word, first_letter_in_uppercase = true)
+  if first_letter_in_uppercase
+    lower_case_and_underscored_word.to_s.gsub(/\/(.?)/) { "::#{$1.upcase}" }.gsub(/(?:^|_)(.)/) { $1.upcase }
+  else
+    lower_case_and_underscored_word.first.downcase + camelize(lower_case_and_underscored_word)[1..-1]
+  end
+end
+
+# Load all the formatters
+Dir.glob([File.dirname(__FILE__) + "/lib/eden/formatters/*.rb"] ) do |file|
+  require "#{file}"
+  const_name = camelize( File.basename(file, ".rb"))
+  formatters << Object.const_get( const_name )
+end
+
+# Setup defaults
+require 'eden/defaults'
+
 # Displays a source file on STDOUT using ANSI escape codes for
 # syntax highlighting
 def colorize( sf )
@@ -36,8 +58,6 @@ end
 # Load default options
 options = {}
 
-puts ARGV.inspect
-
 # Command-line options parser
 opts = OptionParser.new do |opts|
   options[:recurse] = false
@@ -50,9 +70,9 @@ source_files = []
 
 # Parse the command line, and find out what we want to do
 opts.parse!
-cmd = ARGV.shift.downcase
+cmd = ARGV.shift.downcase.to_sym
 
-unless ["colorize", "analyse", "rewrite"].include?(cmd)
+unless [:colorize, :analyse, :rewrite].include?(cmd)
   puts opts
 end
 
@@ -67,13 +87,18 @@ begin
     sf = Eden::SourceFile.new( f )
     sf.load!
     sf.tokenize!
+    formatters.each do |formatter|
+      formatter.format( sf )
+    end
     source_files << sf
-    colorize( sf )
+    case cmd
+    when :colorize then colorize( sf )
+    when :rewrite then sf.rewrite!
+    when :analyse then analyse( sf )
+    end
   end
 rescue => e
   puts e
-  puts sf.lines[-1].tokens.inspect
 end
-
 
 
