@@ -27,6 +27,17 @@ module Eden
       return tokens[token_index-1]
     end
 
+    def previous_non_whitespace_token( token )
+      token_index = tokens.index( token )
+      return nil if token_index.nil? || token_index == 0
+      token_index -= 1
+      while( token_index != 0 )
+        return tokens[token_index] if tokens[token_index].type != :whitespace
+        token_index -= 1
+      end
+      return nil
+    end
+
     def next_token( token )
       token_index = tokens.index( token )
       return nil if token_index.nil? || token_index == tokens.length

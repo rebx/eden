@@ -174,9 +174,37 @@ SOURCE
     assert_equal "end\n", @sf.lines[7].joined_tokens
   end
 
+  # if suffix condition
   def test_should_not_indent_suffix_conditional
-    @sf.stubs(:source)
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /,''))
+      def function
+      do_something if some_condition
+      do_something_else
+      end
+SOURCE
+      @sf.tokenize!
+      Indenter.format( @sf )
+      assert_equal "def function\n", @sf.lines[0].joined_tokens
+      assert_equal "  do_something if some_condition\n", @sf.lines[1].joined_tokens
+      assert_equal "  do_something_else\n", @sf.lines[2].joined_tokens
+      assert_equal "end\n", @sf.lines[3].joined_tokens
   end
+
+  # unless suffix condition
+  def test_should_not_indent_suffix_conditional2
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /,''))
+      def function
+      do_something unless some_condition
+      do_something_else
+      end
+SOURCE
+      @sf.tokenize!
+      Indenter.format( @sf )
+      assert_equal "def function\n", @sf.lines[0].joined_tokens
+      assert_equal "  do_something unless some_condition\n", @sf.lines[1].joined_tokens
+      assert_equal "  do_something_else\n", @sf.lines[2].joined_tokens
+      assert_equal "end\n", @sf.lines[3].joined_tokens
+  end  
 
   # Loop Statements
   #-----------------------------------------------------------------------------
@@ -192,6 +220,21 @@ SOURCE
     assert_equal "while @something\n", @sf.lines[0].joined_tokens
     assert_equal "  do_something\n", @sf.lines[1].joined_tokens
     assert_equal "end\n", @sf.lines[2].joined_tokens
+  end
+
+  def test_should_not_index_suffix_while_statement
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /,''))
+      def function
+      do_something while some_condition
+      do_something_else
+      end
+SOURCE
+      @sf.tokenize!
+      Indenter.format( @sf )
+      assert_equal "def function\n", @sf.lines[0].joined_tokens
+      assert_equal "  do_something while some_condition\n", @sf.lines[1].joined_tokens
+      assert_equal "  do_something_else\n", @sf.lines[2].joined_tokens
+      assert_equal "end\n", @sf.lines[3].joined_tokens
   end
 
   def test_should_indent_while_statement_with_optional_do
@@ -218,6 +261,21 @@ SOURCE
     assert_equal "until @something\n", @sf.lines[0].joined_tokens
     assert_equal "  do_something\n", @sf.lines[1].joined_tokens
     assert_equal "end\n", @sf.lines[2].joined_tokens
+  end
+
+  def test_should_not_index_suffix_until_statement
+    @sf.stubs(:source).returns(<<-SOURCE.gsub(/^      /,''))
+      def function
+      do_something until some_condition
+      do_something_else
+      end
+SOURCE
+      @sf.tokenize!
+      Indenter.format( @sf )
+      assert_equal "def function\n", @sf.lines[0].joined_tokens
+      assert_equal "  do_something until some_condition\n", @sf.lines[1].joined_tokens
+      assert_equal "  do_something_else\n", @sf.lines[2].joined_tokens
+      assert_equal "end\n", @sf.lines[3].joined_tokens
   end
 
   def test_should_indent_until_statement_with_optional_do

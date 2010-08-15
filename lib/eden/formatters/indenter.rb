@@ -29,8 +29,15 @@ class Indenter < Eden::Formatter
 
   def self.calculate_post_indent( line )
     line.tokens.each do |t|
-      if [:class, :def, :module, :do, :begin, :rescue, :if, :else, :elsif, :case].include?(t.type)
+      if [:class, :def, :module, :do, :begin, :rescue, :if, :else, :elsif, :case, :unless].include?(t.type)
         increase_indent!
+        
+        # Handle suffix conditionals
+        if [:if, :unless].include?(t.type)
+          prev_token = line.previous_non_whitespace_token(t)
+          decrease_indent! if !prev_token.nil? || (prev_token && prev_token.type == :equals)
+        end
+
         line.tokens.each do |tok|
           decrease_indent! if tok.is?( :end )
         end
@@ -38,6 +45,12 @@ class Indenter < Eden::Formatter
 
       if [:for, :until, :while].include?(t.type)
         increase_indent!
+
+        if [:until, :while].include?(t.type)
+          prev_token = line.previous_non_whitespace_token(t)
+          decrease_indent! if !prev_token.nil? || (prev_token && prev_token.type == :equals)
+        end
+
         line.tokens.each do |tok|
           decrease_indent! if tok.is?( :do )
         end
