@@ -65,7 +65,7 @@ module Eden
     end
 
     def tokenize_whitespace
-      advance until( cchar != ' ' && cchar != '\t' )
+      advance until( cchar != ' ' && cchar != "\t" )
       capture_token( :whitespace )
     end
 

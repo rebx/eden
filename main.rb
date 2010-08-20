@@ -82,6 +82,8 @@ else
   pattern = ARGV[0]
 end
 
+sf = nil
+
 begin
   Dir[pattern].each do |f|
     sf = Eden::SourceFile.new( f )
@@ -99,6 +101,7 @@ begin
   end
 rescue => e
   puts e
+  sf.lines.each { |l| puts l.joined_tokens }
 end
 
 

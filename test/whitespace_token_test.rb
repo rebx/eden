@@ -14,6 +14,24 @@ class WhitespaceTokenTest < Test::Unit::TestCase
     assert_equal :whitespace, line.tokens[0].type
   end
 
+  def test_leading_whitespace_tab_tokenization
+    @sf.stubs(:source).returns("\t\ttoken")
+    @sf.tokenize!
+    line = @sf.lines[0]
+    assert_equal 2, line.tokens.size
+    assert_equal "\t\t", line.tokens[0].content
+    assert_equal :whitespace, line.tokens[0].type
+  end
+
+  def test_leading_whitespace_multiple_space_tokenization
+    @sf.stubs(:source).returns("\t token")
+    @sf.tokenize!
+    line = @sf.lines[0]
+    assert_equal 2, line.tokens.size
+    assert_equal "\t ", line.tokens[0].content
+    assert_equal :whitespace, line.tokens[0].type
+  end
+
   def test_trailing_whitespace_tokenization
     @sf.stubs(:source).returns("token    ")
     @sf.tokenize!

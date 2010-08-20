@@ -130,7 +130,7 @@ module Eden
       case( cchar )
       when nil  then @state = :eof
       when ' '  then @state = :whitespace
-      when '\t' then @state = :whitespace
+      when "\t" then @state = :whitespace
       when "\n" then @state = :newline
       when '"'  then @state = :double_q_string
       when '\'' then @state = :single_q_string
