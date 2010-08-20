@@ -17,7 +17,7 @@ def camelize(lower_case_and_underscored_word, first_letter_in_uppercase = true)
 end
 
 # Load all the formatters
-Dir.glob([File.dirname(__FILE__) + "/lib/eden/formatters/*.rb"] ) do |file|
+Dir.glob([File.dirname(__FILE__) + "/../lib/eden/formatters/*.rb"] ) do |file|
   require "#{file}"
   const_name = camelize( File.basename(file, ".rb"))
   formatters << Object.const_get( const_name )
@@ -25,6 +25,11 @@ end
 
 # Setup defaults
 require 'eden/defaults'
+
+# Load formatting customizations
+if File.exists?("./config/eden.rb")
+   require './config/eden.rb'
+end
 
 # Displays a source file on STDOUT using ANSI escape codes for
 # syntax highlighting
@@ -77,16 +82,10 @@ unless [:colorize, :analyse, :rewrite].include?(cmd)
   puts opts
 end
 
-if File.exist?(ARGV[0]) && File.directory?(ARGV[0])
-  pattern = ARGV[0] + "*.rb"
-else
-  pattern = ARGV[0]
-end
-
 sf = nil
 
 begin
-  Dir[pattern].each do |f|
+  ARGV.each do |f|
     sf = Eden::SourceFile.new( f )
     sf.load!
     sf.tokenize!
