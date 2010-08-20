@@ -16,19 +16,9 @@ module Eden
 
       case def_char
       when 'r', 'Q', 'W', 'x'
-        token = tokenize_expanded_string( cchar )  do
-          # Regex options - See Section 8.5.5.4
-          if @state == :regex
-            advance if (cchar == 'i' or cchar == 'm')
-          end
-        end
+        token = tokenize_expanded_string( cchar )
       when 's', 'q', 'w'
-        token = tokenize_non_expanded_string( cchar ) do
-          # Regex options - See Section 8.5.5.4
-          if @state == :regex
-            advance if (cchar == 'i' or cchar == 'm')
-          end
-        end
+        token = tokenize_non_expanded_string( cchar )
       end
 
       return token

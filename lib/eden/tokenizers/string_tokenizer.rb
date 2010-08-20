@@ -6,7 +6,7 @@ module Eden
 
     # If a block is given, it gets run after the final delimiter is detected. The
     # primary purpose for this is to allow the capture of regex modifiers
-    def tokenize_non_expanded_string( start_delimiter, &block )
+    def tokenize_non_expanded_string( start_delimiter )
       delimiter_depth = 0
       matched_delimiter = is_matched_delimiter?( start_delimiter )
       end_delimiter = find_matching_delimiter( start_delimiter )
@@ -28,7 +28,9 @@ module Eden
       end
       advance # Pass the closing quote
 
-      block.call if block_given?
+      if @state == :regex
+        advance if ['i', 'm'].include?( cchar )
+      end
 
       @expr_state = :end
       capture_token( @state )
@@ -42,7 +44,7 @@ module Eden
       tokenize_expanded_string('"', in_string_already)
     end
 
-    def tokenize_expanded_string( start_delimiter, in_string_already = false, &block )
+    def tokenize_expanded_string( start_delimiter, in_string_already = false )
       saved_state = @state
       tokens = []
       end_delimiter = find_matching_delimiter( start_delimiter )
@@ -79,7 +81,9 @@ module Eden
         end
       end
       advance # Pass the closing delimiter
-      block.call if block_given?
+      if @state == :regex
+        advance if ['i', 'm'].include?( cchar )
+      end
       @expr_state = :end
       tokens << capture_token( @state )
       return tokens
