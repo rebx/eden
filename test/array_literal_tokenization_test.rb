@@ -25,4 +25,19 @@ class ArrayLiteralTokenizationTest < Test::Unit::TestCase
     assert_equal :array_literal, tokens[0].type
     assert_equal "%w{rah \#{@inst} rah}", tokens[0].content
   end
+
+  def test_should_tokenize_expanded_array_literal
+    @sf.stubs(:source).returns("%W{rah \#{@inst} rah}\n")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal :array_literal, tokens[0].type
+    assert_equal "%W{rah \#", tokens[0].content
+    assert_equal :lcurly, tokens[1].type
+    assert_equal :instancevar, tokens[2].type
+    assert_equal "@inst", tokens[2].content
+    assert_equal :rcurly, tokens[3].type
+    assert_equal :array_literal, tokens[4].type
+    assert_equal " rah}", tokens[4].content
+  end
 end

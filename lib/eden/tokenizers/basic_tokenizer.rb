@@ -24,14 +24,15 @@ module Eden
     
     def tokenize_rcurly
       @thunk_end += 1
-      old_state = @interpolating.delete_at(-1)
+      old_state = @interpolating.pop
+      old_start_delimiter = @delimiters.pop
       tokens = []
       if old_state
         tokens << Token.new(@state, thunk)
         @i += 1
         reset_thunk!
         @state = old_state
-        tokens << tokenize_double_quote_string(true)
+        tokens << tokenize_expanded_string( old_start_delimiter, true)
       else
         tokens << Token.new(@state, thunk)
         @i += 1

@@ -18,6 +18,7 @@ module Eden
     def initialize( source_file )
       @sf = source_file
       @interpolating = [] # Stack for state when interpolating into strings
+      @delimiters = [] # Stack for delimiters which we need to keep when interpolating
     end
       
     def tokenize!

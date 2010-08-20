@@ -54,7 +54,8 @@ module Eden
           advance # include the # character in the string
           case cchar
           when '{'
-            @interpolating << @state
+            @interpolating.push( @state )
+            @delimiters.push( start_delimiter )
             tokens << Token.new( @state, thunk )
             reset_thunk!
             @state = :lcurly
@@ -77,7 +78,7 @@ module Eden
           advance
         end
       end
-      advance # Pass the closing double-quote
+      advance # Pass the closing delimiter
       block.call if block_given?
       @expr_state = :end
       tokens << capture_token( @state )
