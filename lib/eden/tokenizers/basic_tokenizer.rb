@@ -59,6 +59,22 @@ module Eden
       end
     end
 
+    # tokenizes question mark / character literals
+    def tokenize_question_mark
+      advance
+      if @expr_state == :end || @expr_state == :endarg
+        @expr_state = :beg
+        return capture_token(:question_mark)
+      end
+
+      if (cchar != ' ' && cchar != "\t") && @i < @length
+        advance until cchar == ' ' || cchar == "\t" || @i > @length
+        return capture_token(:character_literal)
+      end
+
+      capture_token(:question_mark)
+    end
+
     def tokenize_identifier
       @expr_state = :end
       advance until( /[A-Za-z0-9_]/.match( cchar ).nil? )

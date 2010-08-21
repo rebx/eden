@@ -6,10 +6,10 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
   end
 
   def test_single_character_tokenisation
-    @sf.stubs(:source).returns("<>~!@% ^&*()[]{}|.: ;=?+-")
+    @sf.stubs(:source).returns("<>~!@% ^&*()[]{}|.: ;=? +-")
     @sf.tokenize!
     line = @sf.lines[0]
-    assert_equal 25, line.tokens.size
+    assert_equal 26, line.tokens.size
     assert_equal "<", line.tokens[0].content
     assert_equal :lt, line.tokens[0].type
     assert_equal ">", line.tokens[1].content
@@ -52,10 +52,10 @@ class SingleCharacterTokenizationTest < Test::Unit::TestCase
     assert_equal :equals, line.tokens[21].type
     assert_equal "?", line.tokens[22].content
     assert_equal :question_mark, line.tokens[22].type    
-    assert_equal "+", line.tokens[23].content
-    assert_equal :plus, line.tokens[23].type    
-    assert_equal "-", line.tokens[24].content
-    assert_equal :minus, line.tokens[24].type    
+    assert_equal "+", line.tokens[24].content
+    assert_equal :plus, line.tokens[24].type    
+    assert_equal "-", line.tokens[25].content
+    assert_equal :minus, line.tokens[25].type    
   end
 
   def test_period_tokenization

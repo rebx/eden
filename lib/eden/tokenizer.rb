@@ -72,8 +72,10 @@ module Eden
         when :tilde
           default_expr_state_transition!
           @current_line.tokens << tokenize_single_character
-        when :at, :question_mark, :semicolon, :backslash
+        when :at, :semicolon, :backslash
           @current_line.tokens << tokenize_single_character
+        when :question_mark
+          @current_line.tokens << tokenize_question_mark
         when :colon
           @current_line.tokens << tokenize_colon
         when :period

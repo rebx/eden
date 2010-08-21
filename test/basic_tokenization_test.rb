@@ -13,4 +13,17 @@ class BasicTokenizationTest < Test::Unit::TestCase
     assert_equal :backslash, tokens[2].type
     assert_equal :newline, tokens[3].type
   end
+
+  def test_should_tokenize_question_mark_character_literals
+    @sf.stubs(:source).returns("?a ?} ?\u2332")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :character_literal, tokens[0].type
+    assert_equal "?a", tokens[0].content
+    assert_equal :character_literal, tokens[2].type
+    assert_equal "?}", tokens[2].content
+    assert_equal :character_literal, tokens[4].type
+    assert_equal "?\u2332", tokens[4].content
+  end
 end
