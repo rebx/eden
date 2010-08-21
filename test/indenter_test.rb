@@ -42,6 +42,26 @@ class IndenterTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_not_indent_heredoc
+    @sf.stubs(:source).returns(<<-SOURCE)
+class Test
+def function
+rah = <<-HEREDOC
+rah234
+HEREDOC
+end
+end
+SOURCE
+    @sf.tokenize!
+    Indenter.format( @sf )
+    assert_equal "class Test\n", @sf.lines[0].joined_tokens
+    assert_equal "  def function\n", @sf.lines[1].joined_tokens
+    assert_equal "    rah = <<-HEREDOC\n", @sf.lines[2].joined_tokens
+    assert_equal "rah234\nHEREDOC\n", @sf.lines[3].joined_tokens
+    assert_equal "  end\n", @sf.lines[4].joined_tokens    
+    assert_equal "end\n", @sf.lines[5].joined_tokens    
+  end
+
   def test_should_indent_function_body
     @sf.stubs(:source).returns("def function\nreturn nil\nend\n")
     @sf.tokenize!

@@ -3,6 +3,7 @@ class Indenter < Eden::Formatter
     return unless options[:adjust_indents]
     @current_indent = 0
     source_file.each_line do |line|
+      next if line.tokens[0] && line.tokens[0].is?(:heredoc_body)
       calculate_pre_indent(line)
       adjust_indent(line)
       calculate_post_indent(line)
