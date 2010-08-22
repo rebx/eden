@@ -31,8 +31,9 @@ to the file in place. The basic format for running Eden is:
     eden command filenames
 
 Eden understands 2 commands:
-* `colorize` - Displays a ANSI colorized version of the source. This is mainly used for debugging the lexer.
-* `rewrite` - Rewrites the source files in place to be correctly formatted
+
+ * `colorize` - Displays a ANSI colorized version of the source. This is mainly used for debugging the lexer.
+ * `rewrite` - Rewrites the source files in place to be correctly formatted
 
 Examples:
 
