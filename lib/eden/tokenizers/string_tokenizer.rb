@@ -113,7 +113,10 @@ module Eden
 
     def tokenize_heredoc_body
       if @heredoc_delimiter
-        advance until @sf.source[@i, @heredoc_delimiter.length] == @heredoc_delimiter || @i >= @length
+        advance until (@sf.source[@i, @heredoc_delimiter.length ] == @heredoc_delimiter && 
+          @sf.source[@i, @heredoc_delimiter.length+1 ] == @heredoc_delimiter + "\n" ||
+          @sf.source[@i, @heredoc_delimiter.length+2 ] == @heredoc_delimiter + "\r\n") ||
+          @i >= @length
       end
       @heredoc_delimiter.length.times { advance }
       @heredoc_delimiter = nil

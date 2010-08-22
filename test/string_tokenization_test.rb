@@ -217,6 +217,26 @@ class StringTokenizationTest < Test::Unit::TestCase
     assert_equal :newline, tokens[1].type
   end
 
+  # Because the heredoc delimiter must be on a line by itself, the heredoc
+  # delimiter can appear in the heredoc itself without terminating it.
+  def test_heredoc_tokenization_with_amgibuous_delimiter
+    @sf.stubs(:source).returns(<<-SOURCE)
+var = <<WARNING
+WARNING Blah Blah Blah
+And something more
+WARNING
+SOURCE
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_equal "<<WARNING", tokens[4].content
+    assert_equal :heredoc_delimiter, tokens[4].type
+    tokens = @sf.lines[1].tokens
+    assert_equal 2, tokens.size
+    assert_equal "WARNING Blah Blah Blah\nAnd something more\nWARNING", tokens[0].content
+    assert_equal :heredoc_body, tokens[0].type
+  end
+
   def test_heredoc_tokenization_empty_heredoc
     @sf.stubs(:source).returns("str = <<-HEREDOC\nHEREDOC\n")
     @sf.tokenize!
