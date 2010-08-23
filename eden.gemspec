@@ -1,6 +1,6 @@
 EDEN_GEMSPEC = Gem::Specification.new do |s|
   s.name = 'eden'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = false
   s.summary = "A source-code formatter for Ruby"
