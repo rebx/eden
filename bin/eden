@@ -74,6 +74,15 @@ options = {}
 # Command-line options parser
 opts = OptionParser.new do |opts|
   options[:recurse] = false
+  opts.banner = <<BANNER
+usage: eden command [options] source_files
+--
+Valid command options:
+colorize - display source file with syntax highlighting
+rewrite - rewrite the source file in place with adjusted formatting
+
+Options:
+BANNER
   opts.on('-R', '--recursive', "Recursively search subdirectories") do 
     options[:recurse] = true
   end
@@ -83,10 +92,18 @@ source_files = []
 
 # Parse the command line, and find out what we want to do
 opts.parse!
-cmd = ARGV.shift.downcase.to_sym
+cmd = ARGV.shift
+
+unless cmd
+  puts opts
+  exit
+end
+
+cmd = cmd.downcase.to_sym
 
 unless [:colorize, :analyse, :rewrite, :debug].include?(cmd)
   puts opts
+  exit
 end
 
 sf = nil
