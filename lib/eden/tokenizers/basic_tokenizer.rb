@@ -68,7 +68,8 @@ module Eden
       end
 
       if (cchar != ' ' && cchar != "\t") && @i < @length
-        advance until cchar == ' ' || cchar == "\t" || @i > @length
+        advance until cchar == ' ' || cchar == "\t" ||
+          cchar == "\r" || cchar == "\n" || @i > @length
         return capture_token(:character_literal)
       end
 

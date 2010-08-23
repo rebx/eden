@@ -15,10 +15,10 @@ class BasicTokenizationTest < Test::Unit::TestCase
   end
 
   def test_should_tokenize_question_mark_character_literals
-    @sf.stubs(:source).returns("?a ?} ?\u2332")
+    @sf.stubs(:source).returns("?a ?} ?\u2332\n")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
-    assert_equal 5, tokens.size
+    assert_equal 6, tokens.size
     assert_equal :character_literal, tokens[0].type
     assert_equal "?a", tokens[0].content
     assert_equal :character_literal, tokens[2].type
