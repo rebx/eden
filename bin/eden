@@ -61,6 +61,13 @@ def colorize( sf )
   end
 end
 
+def debug( source_file )
+  source_file.lines.each do |l|
+    puts l.tokens.inspect
+  end
+end
+
+
 # Load default options
 options = {}
 
@@ -78,7 +85,7 @@ source_files = []
 opts.parse!
 cmd = ARGV.shift.downcase.to_sym
 
-unless [:colorize, :analyse, :rewrite].include?(cmd)
+unless [:colorize, :analyse, :rewrite, :debug].include?(cmd)
   puts opts
 end
 
@@ -97,6 +104,7 @@ begin
     when :colorize then colorize( sf )
     when :rewrite then sf.rewrite!
     when :analyse then analyse( sf )
+    when :debug then debug( sf )
     end
   end
 rescue => e
