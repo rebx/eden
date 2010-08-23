@@ -12,8 +12,8 @@ EDEN_GEMSPEC = Gem::Specification.new do |s|
   s.require_path = "lib"
   s.bindir = 'bin'
   s.executables << 'eden'
-  s.description = <<END
+  s.description = <<-DESC
 A source-code formatter for Ruby, based on a robust lexical analyser, and a modular
 format for easy configuration and expansion.
-END	     
+DESC
 end
