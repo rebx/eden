@@ -125,6 +125,18 @@ SOURCE
     assert_equal "end\n", @sf.lines[6].joined_tokens
   end
 
+  # Issue #1 raised on Github.
+  def test_should_not_indent_class_used_as_method
+    @sf.stubs(:source).returns(<<-SOURCE)
+self.class.method_name
+another_method
+SOURCE
+    @sf.tokenize!
+    Indenter.format( @sf )
+    assert_equal "self.class.method_name\n", @sf.lines[0].joined_tokens
+    assert_equal "another_method\n", @sf.lines[1].joined_tokens
+  end
+
   def test_should_indent_block
     @sf.stubs(:source).returns("@item.map do |i|\ni*2\nend\n")
     @sf.tokenize!

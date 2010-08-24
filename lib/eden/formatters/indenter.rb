@@ -30,7 +30,16 @@ class Indenter < Eden::Formatter
 
   def self.calculate_post_indent( line )
     line.tokens.each do |t|
-      if [:class, :def, :module, :do, :begin, :rescue, :if, :else, :elsif, :case, :unless].include?(t.type)
+      if t.is?(:class) 
+        # Don't indent self.class.method_name expressions
+        increase_indent! unless line.previous_token(t) && line.previous_token(t).is?(:period)
+
+        line.tokens.each do |tok|
+          decrease_indent! if tok.is?( :end )
+        end
+      end
+
+      if [:def, :module, :do, :begin, :rescue, :if, :else, :elsif, :case, :unless].include?(t.type)
         increase_indent!
         
         # Handle suffix conditionals
