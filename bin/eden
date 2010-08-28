@@ -73,7 +73,8 @@ options = {}
 
 # Command-line options parser
 opts = OptionParser.new do |opts|
-  options[:recurse] = false
+  options[:backup] = false
+
   opts.banner = <<BANNER
 usage: eden command [options] source_files
 --
@@ -83,10 +84,6 @@ rewrite - rewrite the source file in place with adjusted formatting
 
 Options:
 BANNER
-  opts.on('-R', '--recursive', "Recursively search subdirectories") do 
-    options[:recurse] = true
-  end
-
   opts.on('-B', '--backup', "Make backups of changed files") do
     options[:backup] = true
   end
