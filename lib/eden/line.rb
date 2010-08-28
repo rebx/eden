@@ -1,11 +1,18 @@
 module Eden
   class Line
-    attr_accessor :line_no, :tokens
+    attr_accessor :line_no, :tokens, :changed
 
     def initialize( line_no )
+      @changed = false
       @line_no = line_no
       @tokens = []
       @warnings = []
+    end
+
+    def changed?
+      return true if @changed # Deleted token
+      @tokens.each { |t| return true if t.changed? }
+      return false
     end
 
     def flatten!
@@ -45,6 +52,7 @@ module Eden
     end
 
     def insert_token_after( token, new_token )
+      @changed = true
       token_index = tokens.index( token )
       if token_index.nil?
         tokens.push( new_token )
@@ -54,12 +62,17 @@ module Eden
     end
     
     def insert_token_before( token, new_token )
+      @changed = true
       token_index = tokens.index( token )
       if token_index.nil?
         tokens.unshift( new_token )
       else
         tokens.insert( token_index, new_token )
       end
+    end
+
+    def delete_token_at( pos )
+      @tokens.delete_at(pos)
     end
   end
 end

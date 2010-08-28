@@ -29,6 +29,16 @@ module Eden
     def initialize( type, content )
       @type = type
       @content = content
+      @changed = false
+    end
+
+    def content=(new_content)
+      @content = new_content
+      @changed = true
+    end
+
+    def changed?
+      @changed
     end
 
     def inspect

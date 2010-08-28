@@ -81,7 +81,7 @@ class Indenter < Eden::Formatter
         line.tokens[0].content = indent_content
       else
         indent_token = Eden::Token.new( :whitespace, indent_content )
-        line.tokens.unshift(indent_token)
+        line.insert_token_before( line.tokens[0], indent_token )
       end
     end
   end

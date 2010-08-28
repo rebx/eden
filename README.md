@@ -28,12 +28,17 @@ Refer to `lib/eden/defaults.rb` for full configuration options.
 Eden is designed to be used with a source-control system, so when it formats Ruby source files, it writes changes
 to the file in place. The basic format for running Eden is:
 
-    eden command filenames
+    eden command options filenames
 
 Eden understands 2 commands:
 
  * `colorize` - Displays a ANSI colorized version of the source. This is mainly used for debugging the lexer.
  * `rewrite` - Rewrites the source files in place to be correctly formatted
+
+Valid options are:
+
+ * `-B` or `--backup` - make backup copies of any changed files when rewriting. The backup files are the same file name with a tilde ('~') appended.
+
 
 Examples:
 
