@@ -1,4 +1,6 @@
 0.1.1
 - Fixed banner message displayed when no params passed to eden.
+- Fixed bug causing indent increase after self.class.method constructs
+- Added -B command line option to make backup copies of changed files.
 
 0.1.0 -- Initial Release
