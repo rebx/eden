@@ -23,29 +23,83 @@ class OperatorTokenizationTest < Test::Unit::TestCase
   end
 
   def test_plus_tokenization
-    @sf.stubs(:source).returns("+ += +@")
+    @sf.stubs(:source).returns("a + 1")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal :plus, tokens[0].type
-    assert_equal "+", tokens[0].content
+    assert_equal :plus, tokens[2].type
+    assert_equal "+", tokens[2].content
+  end
+
+  def test_plus_equals_tokenization
+    @sf.stubs(:source).returns("a += 1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
     assert_equal :plus_equals, tokens[2].type
     assert_equal "+=", tokens[2].content
-    assert_equal :plus_at, tokens[4].type
-    assert_equal "+@", tokens[4].content
+  end
+
+  def test_plus_at_tokenization
+    @sf.stubs(:source).returns("a +@ 1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :plus_at, tokens[2].type
+    assert_equal "+@", tokens[2].content
+  end
+
+  def test_plus_tokenization_with_ambiguous_plus
+    @sf.stubs(:source).returns("a=b+1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :identifier, tokens[0].type
+    assert_equal "a", tokens[0].content
+    assert_equal :plus, tokens[3].type
+    assert_equal "+", tokens[3].content
+    assert_equal :dec_literal, tokens[4].type
+    assert_equal "1", tokens[4].content
+  end
+
+  def test_plus_tokenization_with_ambiguous_minus
+    @sf.stubs(:source).returns("a=b-1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :identifier, tokens[0].type
+    assert_equal "a", tokens[0].content
+    assert_equal :minus, tokens[3].type
+    assert_equal "-", tokens[3].content
+    assert_equal :dec_literal, tokens[4].type
+    assert_equal "1", tokens[4].content
   end
 
   def test_minus_tokenization
-    @sf.stubs(:source).returns("- -= -@")
+    @sf.stubs(:source).returns("a - 1")
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal :minus, tokens[0].type
-    assert_equal "-", tokens[0].content
+    assert_equal :minus, tokens[2].type
+    assert_equal "-", tokens[2].content
+  end
+
+  def test_minus_equals_tokenization
+    @sf.stubs(:source).returns("a -= 1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
     assert_equal :minus_equals, tokens[2].type
     assert_equal "-=", tokens[2].content
-    assert_equal :minus_at, tokens[4].type
-    assert_equal "-@", tokens[4].content
+  end
+
+  def test_minus_at_tokenization
+    @sf.stubs(:source).returns("a -@ 1")
+    @sf.tokenize!
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_equal :minus_at, tokens[2].type
+    assert_equal "-@", tokens[2].content
   end
 
   def test_multiply_tokenization

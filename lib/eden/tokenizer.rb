@@ -202,12 +202,8 @@ module Eden
         end
       when '1'..'9'
         @state = :dec_literal
-      when '+', '-'
-        if peek_ahead_for( /[0-9]/ )
-          @state = :dec_literal
-        else
-          @state = ( cchar == '+' ? :plus : :minus )
-        end
+      when '+' then @state = :plus
+      when '-' then @state = :minus
       end
     end
 

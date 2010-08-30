@@ -34,7 +34,18 @@ module Eden
     end
 
     def tokenize_plus_operators
+      if is_beg || (is_arg && @line.last_token_is_space?)
+        if peek_ahead_for(/[0-9]/)
+          return tokenize_decimal_literal
+        else
+          @expr_state = :beg
+          advance
+          return capture_token(:plus)
+        end
+      end
+
       advance
+
       case cchar
       when '='
         @expr_state = :beg
@@ -49,7 +60,19 @@ module Eden
     end
 
     def tokenize_minus_operators
+
+      if is_beg || (is_arg && @line.last_token_is_space?)
+        if peek_ahead_for(/[0-9]/)
+          return tokenize_decimal_literal
+        else
+          advance
+          @expr_state = :beg
+          return capture_token(:minus)
+        end
+      end
+
       advance
+
       case cchar
       when '='
         @expr_state = :beg
