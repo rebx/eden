@@ -10,11 +10,9 @@ class ArrayLiteralTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 2, tokens.size
-    assert_equal :array_literal, tokens[0].type
-    assert_equal "%w{rah rah rah}", tokens[0].content
+    assert_token tokens[0], :array_literal, "%w{rah rah rah}"
     tokens = @sf.lines[1].tokens
-    assert_equal :array_literal, tokens[0].type
-    assert_equal "%w<rah <rah> rah>", tokens[0].content
+    assert_token tokens[0], :array_literal, "%w<rah <rah> rah>"
   end
 
   def test_should_not_expand_delimited_array_literal
@@ -22,8 +20,8 @@ class ArrayLiteralTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 2, tokens.size
-    assert_equal :array_literal, tokens[0].type
-    assert_equal "%w{rah \#{@inst} rah}", tokens[0].content
+    assert_token tokens[0], :array_literal, "%w{rah \#{@inst} rah}"
+    assert_token tokens[1], :newline, "\n"
   end
 
   def test_should_tokenize_expanded_array_literal
@@ -31,13 +29,10 @@ class ArrayLiteralTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :array_literal, tokens[0].type
-    assert_equal "%W{rah \#", tokens[0].content
-    assert_equal :lcurly, tokens[1].type
-    assert_equal :instancevar, tokens[2].type
-    assert_equal "@inst", tokens[2].content
-    assert_equal :rcurly, tokens[3].type
-    assert_equal :array_literal, tokens[4].type
-    assert_equal " rah}", tokens[4].content
+    assert_token tokens[0], :array_literal,"%W{rah \#"
+    assert_token tokens[1], :lcurly
+    assert_token tokens[2], :instancevar, "@inst"
+    assert_token tokens[3], :rcurly
+    assert_token tokens[4], :array_literal, " rah}"
   end
 end

@@ -8,14 +8,10 @@ class IdentifierTokenTest < Test::Unit::TestCase
   def test_instance_var__tokenization
     @sf.stubs(:source).returns("@@token @@_token @@token2")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 5, line.tokens.size
-    assert_equal "@@token", line.tokens[0].content
-    assert_equal :classvar, line.tokens[0].type
-    assert_equal "@@_token", line.tokens[2].content
-    assert_equal :classvar, line.tokens[2].type
-    assert_equal "@@token2", line.tokens[4].content
-    assert_equal :classvar, line.tokens[4].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_token tokens[0], :classvar, "@@token"
+    assert_token tokens[2], :classvar, "@@_token"
+    assert_token tokens[4], :classvar,  "@@token2"
   end
-
 end

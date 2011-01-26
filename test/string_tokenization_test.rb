@@ -10,14 +10,10 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 7, tokens.size
-    assert_equal :single_q_string, tokens[0].type
-    assert_equal "'test'", tokens[0].content
-    assert_equal :single_q_string, tokens[2].type
-    assert_equal "'te\\'st'", tokens[2].content
-    assert_equal :single_q_string, tokens[4].type
-    assert_equal "'te\\\\st'", tokens[4].content
-    assert_equal :single_q_string, tokens[6].type
-    assert_equal "'te\"st'", tokens[6].content
+    assert_token tokens[0], :single_q_string, "'test'"
+    assert_token tokens[2], :single_q_string, "'te\\'st'"
+    assert_token tokens[4], :single_q_string, "'te\\\\st'"
+    assert_token tokens[6], :single_q_string, "'te\"st'"
   end
 
   def test_backquote_string_tokenisation
@@ -25,8 +21,7 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :backquote_string, tokens[0].type
-    assert_equal "`exec`", tokens[0].content
+    assert_token tokens[0], :backquote_string, "`exec`"
   end
 
   def test_backquote_string_interpolation
@@ -34,12 +29,11 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal "`exec \#", tokens[0].content
-    assert_equal :lcurly, tokens[1].type
-    assert_equal "\"cmd\"", tokens[2].content
-    assert_equal :rcurly, tokens[3].type
-    assert_equal "`", tokens[4].content
-    assert_equal :backquote_string, tokens[4].type
+    assert_token tokens[0],:backquote_string, "`exec \#"
+    assert_token tokens[1], :lcurly
+    assert_token tokens[2], :double_q_string,"\"cmd\""
+    assert_token tokens[3], :rcurly
+    assert_token tokens[4], :backquote_string, "`"
   end
 
   def test_should_tokenize_unterminated_backquote_string
@@ -47,8 +41,7 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :backquote_string, tokens[0].type
-    assert_equal "`exec", tokens[0].content
+    assert_token tokens[0], :backquote_string, "`exec"
   end
 
   def test_double_quote_string_tokenisation
@@ -56,10 +49,8 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 3, tokens.size
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '"test"', tokens[0].content
-    assert_equal :double_q_string, tokens[2].type
-    assert_equal '"end', tokens[2].content
+    assert_token tokens[0], :double_q_string, '"test"'
+    assert_token tokens[2], :double_q_string, '"end'
   end
 
   def test_double_quote_string_escaping
@@ -67,10 +58,8 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 3, tokens.size
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '"te\\"st"', tokens[0].content
-    assert_equal :double_q_string, tokens[2].type
-    assert_equal '"test\\\\test"', tokens[2].content
+    assert_token tokens[0], :double_q_string, '"te\\"st"'
+    assert_token tokens[2], :double_q_string, '"test\\\\test"'
   end
 
   def test_quoted_expanded_literal_string_tokenization
@@ -78,11 +67,9 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 2, tokens.size
-    assert_equal "%(test)", tokens[0].content
-    assert_equal :double_q_string, tokens[0].type
+    assert_token tokens[0], :double_q_string, "%(test)"
     tokens = @sf.lines[1].tokens
-    assert_equal "%Q(test)", tokens[0].content
-    assert_equal :double_q_string, tokens[0].type
+    assert_token tokens[0], :double_q_string, "%Q(test)"
   end
 
   def test_should_expand_expanded_literal_strings
@@ -90,14 +77,11 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal "%Q(rah\#", tokens[0].content
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal :lcurly, tokens[1].type
-    assert_equal "@ivar", tokens[2].content
-    assert_equal :instancevar, tokens[2].type
-    assert_equal :rcurly, tokens[3].type
-    assert_equal "rah)", tokens[4].content
-    assert_equal :double_q_string, tokens[4].type
+    assert_token tokens[0], :double_q_string, "%Q(rah\#"
+    assert_token tokens[1], :lcurly
+    assert_token tokens[2], :instancevar,  "@ivar"
+    assert_token tokens[3], :rcurly
+    assert_token tokens[4], :double_q_string, "rah)"
   end
 
   def test_should_not_expand_non_expanded_literal_strings
@@ -105,8 +89,7 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal "%q(rah\#{@ivar}rah)", tokens[0].content
-    assert_equal :single_q_string, tokens[0].type
+    assert_token tokens[0], :single_q_string,"%q(rah\#{@ivar}rah)"
   end
   
   def test_double_quote_string_interpolation
@@ -114,16 +97,11 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 7, tokens.size
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '"str#', tokens[0].content
-    assert_equal :lcurly, tokens[1].type
-    assert_equal '{', tokens[1].content
-    assert_equal :instancevar, tokens[3].type
-    assert_equal '@inst', tokens[3].content
-    assert_equal :rcurly, tokens[5].type
-    assert_equal '}', tokens[5].content
-    assert_equal :double_q_string, tokens[6].type
-    assert_equal 'str"', tokens[6].content
+    assert_token tokens[0], :double_q_string,'"str#'
+    assert_token tokens[1], :lcurly
+    assert_token tokens[3], :instancevar, '@inst'
+    assert_token tokens[5], :rcurly
+    assert_token tokens[6], :double_q_string, 'str"'
   end
 
   def test_string_interpolation_at_end
@@ -131,10 +109,8 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 8, tokens.size
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '"str#', tokens[0].content
-    assert_equal :double_q_string, tokens[6].type
-    assert_equal '"', tokens[6].content
+    assert_token tokens[0], :double_q_string, '"str#'
+    assert_token tokens[6], :double_q_string, '"'
   end
 
   def test_string_interpolation_with_class_instance_vars
@@ -142,16 +118,11 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal '"str#', tokens[0].content
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '@inst', tokens[1].content
-    assert_equal :instancevar, tokens[1].type
-    assert_equal ' moar #', tokens[2].content
-    assert_equal :double_q_string, tokens[2].type
-    assert_equal '@@var', tokens[3].content
-    assert_equal :classvar, tokens[3].type
-    assert_equal '"', tokens[4].content
-    assert_equal :double_q_string, tokens[4].type
+    assert_token tokens[0], :double_q_string, '"str#'
+    assert_token tokens[1], :instancevar, '@inst'
+    assert_token tokens[2], :double_q_string, ' moar #'
+    assert_token tokens[3], :classvar, '@@var'
+    assert_token tokens[4], :double_q_string, '"'
   end
 
   def test_string_interpolation_with_global_vars
@@ -159,12 +130,9 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 4, tokens.size
-    assert_equal '"str#', tokens[0].content
-    assert_equal :double_q_string, tokens[0].type
-    assert_equal '$1', tokens[1].content
-    assert_equal :globalvar, tokens[1].type
-    assert_equal '"', tokens[2].content
-    assert_equal :double_q_string, tokens[2].type
+    assert_token tokens[0], :double_q_string, '"str#'
+    assert_token tokens[1], :globalvar, '$1'
+    assert_token tokens[2], :double_q_string, '"'
   end
   
   def test_delimited_backquote_string_tokenization
@@ -172,8 +140,7 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :backquote_string, tokens[0].type
-    assert_equal "%x{rah --e}", tokens[0].content
+    assert_token tokens[0], :backquote_string, "%x{rah --e}"
   end
 
   def test_should_expand_backquote_string_delimited_literals
@@ -181,14 +148,11 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 5, tokens.size
-    assert_equal "%x(rah\#", tokens[0].content
-    assert_equal :backquote_string, tokens[0].type
-    assert_equal :lcurly, tokens[1].type
-    assert_equal "@rah", tokens[2].content
-    assert_equal :instancevar, tokens[2].type
-    assert_equal :rcurly, tokens[3].type
-    assert_equal ")", tokens[4].content
-    assert_equal :backquote_string, tokens[4].type
+    assert_token tokens[0], :backquote_string, "%x(rah\#"
+    assert_token tokens[1], :lcurly
+    assert_token tokens[2], :instancevar, "@rah"
+    assert_token tokens[3], :rcurly
+    assert_token tokens[4], :backquote_string, ")"
   end
 
   def test_heredoc_tokenization
@@ -196,12 +160,10 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<HEREDOC", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter, "<<HEREDOC"
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "Lorem Ipsum\nHEREDOC", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "Lorem Ipsum\nHEREDOC"
+    assert_token tokens[1], :newline
   end
 
   def test_heredoc_tokenization_2
@@ -209,12 +171,10 @@ class StringTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<-HEREDOC", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter, "<<-HEREDOC"
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "Lorem Ipsum\nHEREDOC", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "Lorem Ipsum\nHEREDOC"
+    assert_token tokens[1], :newline
   end
 
   # Because the heredoc delimiter must be on a line by itself, the heredoc
@@ -229,12 +189,10 @@ SOURCE
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal "<<WARNING", tokens[4].content
-    assert_equal :heredoc_delimiter, tokens[4].type
+    assert_token tokens[4], :heredoc_delimiter, "<<WARNING"
     tokens = @sf.lines[1].tokens
     assert_equal 2, tokens.size
-    assert_equal "WARNING Blah Blah Blah\nAnd something more\nWARNING", tokens[0].content
-    assert_equal :heredoc_body, tokens[0].type
+    assert_token tokens[0], :heredoc_body, "WARNING Blah Blah Blah\nAnd something more\nWARNING"
   end
 
   def test_heredoc_tokenization_empty_heredoc
@@ -242,12 +200,10 @@ SOURCE
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<-HEREDOC", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter, "<<-HEREDOC"
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "HEREDOC", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "HEREDOC"
+    assert_token tokens[1], :newline
   end
   
   def test_heredoc_tokeniztion_with_single_quote_delimiter
@@ -255,12 +211,10 @@ SOURCE
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<'HERE DOC'", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter, "<<'HERE DOC'"
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "Lorem Ipsum\n'HERE DOC'", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "Lorem Ipsum\n'HERE DOC'"
+    assert_token tokens[1], :newline
   end
 
   def test_heredoc_tokeniztion_with_double_quote_delimiter
@@ -268,12 +222,10 @@ SOURCE
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<\"HERE DOC\"", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter, "<<\"HERE DOC\""
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "Lorem Ipsum\n\"HERE DOC\"", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "Lorem Ipsum\n\"HERE DOC\""
+    assert_token tokens[1], :newline
   end
 
   def test_heredoc_tokeniztion_with_backquote_delimiter
@@ -281,11 +233,9 @@ SOURCE
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :heredoc_delimiter, tokens[4].type
-    assert_equal "<<`HERE DOC`", tokens[4].content
+    assert_token tokens[4], :heredoc_delimiter,"<<`HERE DOC`"
     tokens = @sf.lines[1].tokens
-    assert_equal :heredoc_body, tokens[0].type
-    assert_equal "Lorem Ipsum\n`HERE DOC`", tokens[0].content
-    assert_equal :newline, tokens[1].type
+    assert_token tokens[0], :heredoc_body, "Lorem Ipsum\n`HERE DOC`"
+    assert_token tokens[1], :newline
   end
 end

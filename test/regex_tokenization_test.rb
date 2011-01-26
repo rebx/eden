@@ -10,8 +10,7 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :regex, tokens[0].type
-    assert_equal "%r{[a-z]}", tokens[0].content
+    assert_token tokens[0], :regex, "%r{[a-z]}"
   end
 
   def test_delimited_regex_tokenization2
@@ -19,8 +18,7 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :regex, tokens[0].type
-    assert_equal "%r{[a-z]}i", tokens[0].content
+    assert_token tokens[0], :regex, "%r{[a-z]}i"
   end
 
   def test_regex_tokenization_at_line_start
@@ -28,8 +26,7 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal "/[asdf]/", tokens[0].content
-    assert_equal :regex, tokens[0].type
+    assert_token tokens[0], :regex, "/[asdf]/"
   end
 
   def test_ambiguous_regex_tokenization
@@ -44,8 +41,7 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal "/test\\/test/", tokens[0].content
-    assert_equal :regex, tokens[0].type
+    assert_token tokens[0], :regex, "/test\\/test/"
   end
 
   def test_regex_tokenization_with_modifiers
@@ -53,8 +49,7 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal "/test/i", tokens[0].content
-    assert_equal :regex, tokens[0].type
+    assert_token tokens[0], :regex, "/test/i"
   end
 
   def test_regex_tokenization_with_funky_regexes
@@ -62,7 +57,6 @@ class RegexTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 1, tokens.size
-    assert_equal :regex, tokens[0].type
-    assert_equal %q{%r!\[ *(?:(@)([\w\(\)-]+)|([\w\(\)-]+\(\))) *([~\!\|\*$\^=]*) *'?"?([^'"]*)'?"? *\]!i}, tokens[0].content
+    assert_token tokens[0], :regex, %q{%r!\[ *(?:(@)([\w\(\)-]+)|([\w\(\)-]+\(\))) *([~\!\|\*$\^=]*) *'?"?([^'"]*)'?"? *\]!i}
   end
 end

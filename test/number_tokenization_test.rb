@@ -8,29 +8,22 @@ class NumberTokenizationTest < Test::Unit::TestCase
   def test_binary_tokenization
     @sf.stubs(:source).returns("b12345 0b01010 0b11056")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 6, line.tokens.size
-    assert_equal "b12345", line.tokens[0].content
-    assert_equal :identifier, line.tokens[0].type
-    assert_equal "0b01010", line.tokens[2].content
-    assert_equal :bin_literal, line.tokens[2].type
-    assert_equal "0b110", line.tokens[4].content
-    assert_equal :bin_literal, line.tokens[4].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 6, tokens.size
+    assert_token tokens[0], :identifier, "b12345"
+    assert_token tokens[2], :bin_literal, "0b01010"
+    assert_token tokens[4], :bin_literal, "0b110"
   end
 
   def test_hexadecimal_tokenisation
     @sf.stubs(:source).returns("0x0123 0x0F 0xDEADBEEF 0x0FRR")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 8, line.tokens.size
-    assert_equal "0x0123", line.tokens[0].content
-    assert_equal :hex_literal, line.tokens[0].type
-    assert_equal "0x0F", line.tokens[2].content
-    assert_equal :hex_literal, line.tokens[2].type
-    assert_equal "0xDEADBEEF", line.tokens[4].content
-    assert_equal :hex_literal, line.tokens[4].type
-    assert_equal "0x0F", line.tokens[6].content
-    assert_equal :hex_literal, line.tokens[6].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 8, tokens.size
+    assert_token tokens[0], :hex_literal, "0x0123"
+    assert_token tokens[2], :hex_literal, "0x0F"
+    assert_token tokens[4], :hex_literal, "0xDEADBEEF"
+    assert_token tokens[6], :hex_literal, "0x0F"
   end
 
   def test_signed_tokenization
@@ -38,46 +31,36 @@ class NumberTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 4, tokens.size
-    assert_equal "-10", tokens[0].content
-    assert_equal :dec_literal, tokens[0].type
-    assert_equal "+4", tokens[3].content
-    assert_equal :dec_literal, tokens[3].type
+    assert_token tokens[0], :dec_literal, "-10"
+    assert_token tokens[3], :dec_literal, "+4"
   end
 
   def test_decimal_tokenisation
     @sf.stubs(:source).returns("123 9123 0d1987")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 5, line.tokens.size
-    assert_equal "123", line.tokens[0].content
-    assert_equal :dec_literal, line.tokens[0].type
-    assert_equal "9123", line.tokens[2].content
-    assert_equal :dec_literal, line.tokens[2].type
-    assert_equal "0d1987", line.tokens[4].content
-    assert_equal :dec_literal, line.tokens[4].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_token tokens[0], :dec_literal, "123"
+    assert_token tokens[2], :dec_literal, "9123"
+    assert_token tokens[4], :dec_literal, "0d1987"
   end
 
   def test_float_tokenisation
     # TODO: Add test that 123.method doens't tokenize as float
     @sf.stubs(:source).returns("123.0")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 1, line.tokens.size
-    assert_equal "123.0", line.tokens[0].content
-    assert_equal :float_literal, line.tokens[0].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 1, tokens.size
+    assert_token tokens[0], :float_literal, "123.0"
   end
-
 
   def test_exponent_tokenisation
     @sf.stubs(:source).returns("123e24 1.032e-12 1.32e+12")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 5, line.tokens.size
-    assert_equal "123e24", line.tokens[0].content
-    assert_equal :exp_literal, line.tokens[0].type
-    assert_equal "1.032e-12", line.tokens[2].content
-    assert_equal :exp_literal, line.tokens[2].type
-    assert_equal "1.32e+12", line.tokens[4].content
-    assert_equal :exp_literal, line.tokens[4].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_token tokens[0], :exp_literal, "123e24"
+    assert_token tokens[2], :exp_literal, "1.032e-12"
+    assert_token tokens[4], :exp_literal, "1.32e+12"
   end
 end

@@ -8,14 +8,11 @@ class SymbolTokenizationTest < Test::Unit::TestCase
   def test_simple_symbol_tokenisation
     @sf.stubs(:source).returns(":test :test12 :_rah")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 5, line.tokens.size
-    assert_equal ":test", line.tokens[0].content
-    assert_equal :symbol, line.tokens[0].type
-    assert_equal ":test12", line.tokens[2].content
-    assert_equal :symbol, line.tokens[2].type
-    assert_equal ":_rah", line.tokens[4].content
-    assert_equal :symbol, line.tokens[4].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 5, tokens.size
+    assert_token tokens[0], :symbol, ":test"
+    assert_token tokens[2], :symbol, ":test12"
+    assert_token tokens[4], :symbol, ":_rah"
   end
 
   def test_operator_symbol_tokenization
@@ -23,14 +20,10 @@ class SymbolTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 7, tokens.size
-    assert_equal ":%", tokens[0].content
-    assert_equal :symbol, tokens[0].type
-    assert_equal ":<", tokens[2].content
-    assert_equal :symbol, tokens[2].type
-    assert_equal ":/", tokens[4].content
-    assert_equal :symbol, tokens[4].type
-    assert_equal ":<<", tokens[6].content
-    assert_equal :symbol, tokens[6].type
+    assert_token tokens[0], :symbol, ":%"
+    assert_token tokens[2], :symbol, ":<"
+    assert_token tokens[4], :symbol, ":/"
+    assert_token tokens[6], :symbol, ":<<"
   end
 
   def test_dynamic_symbol_tokenisation
@@ -38,10 +31,8 @@ class SymbolTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 3, tokens.size
-    assert_equal :symbol, tokens[0].type
-    assert_equal ":'dynamic symbol'", tokens[0].content
-    assert_equal :symbol, tokens[2].type
-    assert_equal ":\"dynamic symbol\"", tokens[2].content
+    assert_token tokens[0], :symbol, ":'dynamic symbol'"
+    assert_token tokens[2], :symbol, ":\"dynamic symbol\""
   end
 
   def test_dynamic_symbol_tokenization2
@@ -49,16 +40,12 @@ class SymbolTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 2, tokens.size
-    assert_equal :symbol, tokens[0].type
-    assert_equal "%s{rah}", tokens[0].content
+    assert_token tokens[0], :symbol, "%s{rah}"
     tokens = @sf.lines[1].tokens
-    assert_equal :symbol, tokens[0].type
-    assert_equal "%s(rah)", tokens[0].content
+    assert_token tokens[0], :symbol, "%s(rah)"
     tokens = @sf.lines[2].tokens
-    assert_equal :symbol, tokens[0].type
-    assert_equal "%s:rah:", tokens[0].content
+    assert_token tokens[0], :symbol, "%s:rah:"
     tokens = @sf.lines[3].tokens
-    assert_equal :symbol, tokens[0].type
-    assert_equal "%s<rah<rah>rah>", tokens[0].content
+    assert_token tokens[0], :symbol,  "%s<rah<rah>rah>"
   end
 end

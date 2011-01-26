@@ -10,8 +10,8 @@ class BasicTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 4, tokens.size
-    assert_equal :backslash, tokens[2].type
-    assert_equal :newline, tokens[3].type
+    assert_token tokens[2], :backslash
+    assert_token tokens[3], :newline
   end
 
   def test_should_tokenize_question_mark_character_literals
@@ -19,11 +19,8 @@ class BasicTokenizationTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 6, tokens.size
-    assert_equal :character_literal, tokens[0].type
-    assert_equal "?a", tokens[0].content
-    assert_equal :character_literal, tokens[2].type
-    assert_equal "?}", tokens[2].content
-    assert_equal :character_literal, tokens[4].type
-    assert_equal "?\u2332", tokens[4].content
+    assert_token tokens[0], :character_literal, "?a"
+    assert_token tokens[2], :character_literal, "?}"
+    assert_token tokens[4], :character_literal, "?\u2332"
   end
 end

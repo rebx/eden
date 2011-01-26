@@ -8,46 +8,41 @@ class WhitespaceTokenTest < Test::Unit::TestCase
   def test_leading_whitespace_tokenization
     @sf.stubs(:source).returns("    token")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 2, line.tokens.size
-    assert_equal "    ", line.tokens[0].content
-    assert_equal :whitespace, line.tokens[0].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 2, tokens.size
+    assert_token tokens[0], :whitespace, "    "
   end
 
   def test_leading_whitespace_tab_tokenization
     @sf.stubs(:source).returns("\t\ttoken")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 2, line.tokens.size
-    assert_equal "\t\t", line.tokens[0].content
-    assert_equal :whitespace, line.tokens[0].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 2, tokens.size
+    assert_token tokens[0], :whitespace, "\t\t"
   end
 
   def test_leading_whitespace_multiple_space_tokenization
     @sf.stubs(:source).returns("\t token")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 2, line.tokens.size
-    assert_equal "\t ", line.tokens[0].content
-    assert_equal :whitespace, line.tokens[0].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 2, tokens.size
+    assert_token tokens[0], :whitespace, "\t "
   end
 
   def test_trailing_whitespace_tokenization
     @sf.stubs(:source).returns("token    ")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 2, line.tokens.size
-    assert_equal "    ", line.tokens[1].content
-    assert_equal :whitespace, line.tokens[1].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 2, tokens.size
+    assert_token tokens[1], :whitespace, "    "
   end
 
   def test_interstitial_whitespace_tokenization
     @sf.stubs(:source).returns("token token")
     @sf.tokenize!
-    line = @sf.lines[0]
-    assert_equal 3, line.tokens.size
-    assert_equal " ", line.tokens[1].content
-    assert_equal :whitespace, line.tokens[1].type
+    tokens = @sf.lines[0].tokens
+    assert_equal 3, tokens.size
+    assert_token tokens[1], :whitespace, " "
   end
 
   def test_comment_tokenization
@@ -55,9 +50,7 @@ class WhitespaceTokenTest < Test::Unit::TestCase
     @sf.tokenize!
     tokens = @sf.lines[0].tokens
     assert_equal 4, tokens.size
-    assert_equal "# Comment Rah Rah Rah", tokens[2].content
-    assert_equal :comment, tokens[2].type
-    assert_equal "\n", tokens[3].content
-    assert_equal :newline, tokens[3].type
+    assert_token tokens[2], :comment, "# Comment Rah Rah Rah"
+    assert_token tokens[3], :newline,  "\n"
   end
 end
