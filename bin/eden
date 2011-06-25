@@ -126,7 +126,8 @@ begin
     end
   end
 rescue => e
-  puts e
+  STDERR.puts 'error: ' + e.message
+  puts 'bactrace: ' + e.backtrace.inspect
   sf.lines.each { |l| puts l.joined_tokens }
 end
 
