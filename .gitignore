@@ -1,1 +1,5 @@
 *.gem
+*.komodoproject
+*.[0-9]
+*.old
+*.bak
