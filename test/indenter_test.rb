@@ -1,5 +1,8 @@
-require File.dirname(__FILE__) + "/test_helper"
-require File.dirname(__FILE__) + "/../lib/eden/formatters/indenter.rb"
+root_dir = File.dirname(__FILE__)
+$: << root_dir + "/../test"
+require 'test_helper'
+$: << root_dir + "/../lib/eden/formatters"
+require 'indenter'
 
 class IndenterTest < Test::Unit::TestCase
   def setup 
