@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + "/test_helper"
+$: << File.dirname(__FILE__) + "/../test"
+require 'test_helper'
 
 class BasicTokenizationTest < Test::Unit::TestCase
   def setup

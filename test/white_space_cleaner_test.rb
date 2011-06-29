@@ -1,5 +1,8 @@
-require File.dirname(__FILE__) + "/test_helper.rb"
-require File.dirname(__FILE__) + "/../lib/eden/formatters/white_space_cleaner.rb"
+root_dir = File.dirname(__FILE__)
+$: << root_dir + "/../test"
+require 'test_helper'
+$: << root_dir + "/../lib/eden/formatters"
+require 'white_space_cleaner'
 
 class WhiteSpaceCleanerTest < Test::Unit::TestCase
   

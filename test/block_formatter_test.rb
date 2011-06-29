@@ -1,5 +1,8 @@
-require File.dirname(__FILE__) + "/test_helper.rb"
-require File.dirname(__FILE__) + "/../lib/eden/formatters/block_formatter"
+root_dir = File.dirname(__FILE__)
+$: << root_dir + "/../test"
+require 'test_helper'
+$: << root_dir + "/../lib/eden/formatters"
+require 'block_formatter'
 
 class BlockFormatterTest < Test::Unit::TestCase
   def setup

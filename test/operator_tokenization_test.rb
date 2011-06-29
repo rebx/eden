@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + "/test_helper.rb"
+$: << File.dirname(__FILE__) + "/../test"
+require 'test_helper'
 
 class OperatorTokenizationTest < Test::Unit::TestCase
  def setup
